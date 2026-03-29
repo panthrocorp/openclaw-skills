@@ -1,0 +1,23 @@
+{
+  "cli_version": "0.5.1",
+  "checkpoint_id": "907ff28fdd6c",
+  "strategy": "manual-commit",
+  "branch": "feat/publish-zoho-mail-workflow",
+  "checkpoints_count": 1,
+  "files_touched": null,
+  "sessions": [
+    {
+      "metadata": "/90/7ff28fdd6c/0/metadata.json",
+      "transcript": "/90/7ff28fdd6c/0/full.jsonl",
+      "content_hash": "/90/7ff28fdd6c/0/content_hash.txt",
+      "prompt": "/90/7ff28fdd6c/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 5009,
+    "cache_creation_tokens": 147397,
+    "cache_read_tokens": 8890716,
+    "output_tokens": 39322,
+    "api_call_count": 100
+  }
+}
