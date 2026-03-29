@@ -37,6 +37,15 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          ref: ${{ needs.release-please.outputs.gw_tag_name }}
+
+      - name: Create local version tag
+        id: version
+        run: |
+          TAG="${{ needs.release-please.outputs.gw_tag_name }}"
+          VERSION="${TAG#google-workspace/}"
+          git tag "$VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - uses: actions/setup-go@v6
         with:
@@ -44,12 +53,6 @@ jobs:
 
       - name: Test before release
         run: go test -race -count=1 ./...
-
-      - name: Extract version from tag
-        id: version
-        run: |
-          TAG="${{ needs.release-please.outputs.gw_tag_name }}"
-          echo "version=${TAG#google-workspace/}" >> "$GITHUB_OUTPUT"
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v7
@@ -59,6 +62,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GORELEASER_CURRENT_TAG: ${{ steps.version.outputs.version }}
+
+      - name: Upload assets to release
+        run: |
+          TAG="${{ needs.release-please.outputs.gw_tag_name }}"
+          gh release upload "$TAG" dist/*
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish to clawhub
         if: success()

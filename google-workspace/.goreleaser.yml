@@ -1,5 +1,7 @@
 version: 2
 
+project_name: google-workspace
+
 builds:
   - id: google-workspace
     main: .
@@ -24,9 +26,8 @@ archives:
 checksum:
   name_template: "checksums.txt"
 
+release:
+  disable: true
+
 changelog:
-  sort: asc
-  filters:
-    exclude:
-      - "^docs:"
-      - "^test:"
+  disable: true
