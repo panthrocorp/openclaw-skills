@@ -4,7 +4,8 @@
     "google-workspace": {
       "release-type": "go",
       "component": "google-workspace",
-      "changelog-path": "CHANGELOG.md"
+      "changelog-path": "CHANGELOG.md",
+      "release-as": "0.1.0"
     }
   },
   "include-component-in-tag": true,
