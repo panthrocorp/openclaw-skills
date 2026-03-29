@@ -1,0 +1,21 @@
+run my review agents
+
+---
+
+/gh-ship
+
+---
+
+create a README.md for
+
+---
+
+create a CLAUDE.md also
+
+---
+
+yes fix
+
+---
+
+are our claude.md still accurate?
