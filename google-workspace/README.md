@@ -97,8 +97,10 @@ sudo -u openclaw docker exec -it openclaw-gateway \
 
 1. Copy the URL printed to the terminal
 2. Open it in your local browser and authenticate with your Google account
-3. After authorisation, copy the code from the browser's address bar
-4. Paste it back into the terminal
+3. After authorisation, the browser will redirect to `http://localhost` (which will fail to load). Copy only the `code` parameter value from the URL bar (the part after `code=` and before `&scope=`)
+4. Paste only the code back into the terminal (not the full URL)
+
+**Google Advanced Protection users:** If you see `Error 400: policy_enforced`, Advanced Protection blocks unverified third-party OAuth apps. Temporarily unenroll from Advanced Protection at `https://myaccount.google.com/advanced-protection`, complete the OAuth flow, then re-enroll. The refresh token persists on the EBS volume so you only need to do this once.
 
 ### 8. Verify
 

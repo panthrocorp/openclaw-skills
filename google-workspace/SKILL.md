@@ -1,7 +1,7 @@
 ---
 name: Google Workspace
 description: Read-only Gmail and Contacts access with configurable Calendar (readonly or readwrite) for OpenClaw agents
-version: 0.1.0
+version: 0.2.0
 author: panthrocorp
 license: MIT-0
 metadata:
@@ -116,6 +116,8 @@ google-workspace auth status
 ```
 
 If the token has expired, ask the operator to re-authenticate by running `google-workspace auth login` on the host.
+
+If authentication fails with `Error 400: policy_enforced`, the operator's Google account likely has Advanced Protection enabled. They will need to temporarily unenroll, complete the OAuth flow, then re-enroll. The refresh token persists across sessions.
 
 ## Output format
 
