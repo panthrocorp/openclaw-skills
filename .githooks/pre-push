@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Prevent direct pushes to main/master.
+# Pushing via PR merge (GitHub Actions) is unaffected — this only runs locally.
+
+protected_branches=("main" "master")
+current_branch=$(git symbolic-ref --short HEAD 2>/dev/null)
+
+for branch in "${protected_branches[@]}"; do
+  if [ "$current_branch" = "$branch" ]; then
+    echo "🚫 Direct push to '$branch' is blocked."
+    echo "   Create a feature branch and open a PR instead."
+    exit 1
+  fi
+done
