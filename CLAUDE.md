@@ -68,16 +68,11 @@ All skills in this repo follow these rules:
 
 ## Publishing
 
-Skills are published to clawhub via GoReleaser and GitHub Actions on tag push:
-
-```bash
-git tag -a google-workspace/v0.1.0 -m "Initial release"
-git push origin google-workspace/v0.1.0
-```
-
-The release workflow builds binaries for linux/arm64, linux/amd64, and darwin/arm64, then runs `clawhub publish`.
+Releases are automated via [release-please](https://github.com/googleapis/release-please). On each merge to `main`, release-please opens or updates a release PR per skill with a generated changelog. Merging that PR creates a GitHub release, tag, and triggers GoReleaser + `clawhub publish`.
 
 Tags are scoped per skill: `google-workspace/v0.1.0`, not `v0.1.0`. GoReleaser config lives inside each skill directory.
+
+Configuration lives in `.release-please-config.json` (package definitions) and `.release-please-manifest.json` (current versions).
 
 ## Adding a new skill
 
@@ -86,6 +81,7 @@ Tags are scoped per skill: `google-workspace/v0.1.0`, not `v0.1.0`. GoReleaser c
 3. Add a `.goreleaser.yml` for cross-compilation.
 4. Include an MIT-0 `LICENSE` file (clawhub requirement).
 5. Add a `gomod` entry for the new skill directory in `.github/dependabot.yml`.
+6. Add the new skill path to `.release-please-config.json` and `.release-please-manifest.json`.
 
 ## Git conventions
 
