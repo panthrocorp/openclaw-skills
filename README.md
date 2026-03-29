@@ -24,20 +24,17 @@ clawhub install panthrocorp/google-workspace
 
 Every skill in this repository is designed with a hostile-instance threat model in mind:
 
-- OAuth tokens are encrypted at rest using AES-256-GCM with keys stored in external secret managers
-- Gmail and Contacts access is strictly read-only with no write code paths
-- Calendar write operations are opt-in and gated at both config and runtime level
-- Google Cloud projects are scoped to only the required APIs
+- OAuth tokens are encrypted at rest using AES-256-GCM with HKDF-SHA256 key derivation. No unencrypted fallback exists.
+- Gmail and Contacts access is strictly read-only with no write code paths.
+- Calendar write operations are opt-in and gated at both config and runtime level.
+- Google Cloud projects are scoped to only the required APIs.
 
-See each skill's readme for its specific security posture.
+See each skill's README and [SECURITY.md](./SECURITY.md) for the full security policy.
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Ensure `go test ./...` passes in the skill directory
-4. Submit a pull request
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines on branching, commits, and adding new skills.
 
-## License
+## Licence
 
-All skills are released under the [MIT No Attribution](./google-workspace/LICENSE) licence.
+This repository is released under the [MIT No Attribution](./LICENSE) licence.

@@ -1,0 +1,5 @@
+# Sensitive paths require maintainer review
+.github/                        @panthrocorp
+**/internal/crypto/             @panthrocorp
+**/internal/oauth/              @panthrocorp
+**/cmd/auth.go                  @panthrocorp

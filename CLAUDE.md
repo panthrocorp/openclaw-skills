@@ -85,9 +85,12 @@ Tags are scoped per skill: `google-workspace/v0.1.0`, not `v0.1.0`. GoReleaser c
 2. Add a `SKILL.md` with YAML frontmatter (see `google-workspace/SKILL.md` for the schema).
 3. Add a `.goreleaser.yml` for cross-compilation.
 4. Include an MIT-0 `LICENSE` file (clawhub requirement).
+5. Add a `gomod` entry for the new skill directory in `.github/dependabot.yml`.
 
 ## Git conventions
 
 - Never commit directly to `main`. Use feature branches and PRs.
-- Commit messages: `fix: `, `feat: `, or `breaking: ` prefix.
+- Commit messages: `fix:`, `feat:`, or `breaking:` prefix.
 - Subject line under 50 characters, body uses bullet points with emojis.
+- Branch protection requires the `gate` CI check to pass and signed commits.
+- Dependabot PRs are auto-approved and squash-merged.
