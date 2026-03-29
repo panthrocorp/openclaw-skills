@@ -1,0 +1,36 @@
+{
+  "cli_version": "0.5.1",
+  "checkpoint_id": "c329c98389a2",
+  "session_id": "c3126a8e-835a-47af-9240-56a17f278432",
+  "strategy": "manual-commit",
+  "created_at": "2026-03-29T22:44:02.536451478Z",
+  "branch": "release-please--branches--main--components--zoho-mail",
+  "checkpoints_count": 0,
+  "files_touched": [
+    ".release-please-manifest.json"
+  ],
+  "agent": "Claude Code",
+  "model": "arn:aws:bedrock:eu-central-1:863351113752:inference-profile/eu.anthropic.claude-sonnet-4-6",
+  "turn_id": "308e30e12e52",
+  "checkpoint_transcript_start": 192,
+  "transcript_lines_at_start": 192,
+  "token_usage": {
+    "input_tokens": 52,
+    "cache_creation_tokens": 27483,
+    "cache_read_tokens": 4905388,
+    "output_tokens": 14327,
+    "api_call_count": 48
+  },
+  "session_metrics": {
+    "turn_count": 7
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-03-29T22:44:02.356751394Z",
+    "agent_lines": 2,
+    "human_added": 21,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 23,
+    "agent_percentage": 8.695652173913043
+  }
+}

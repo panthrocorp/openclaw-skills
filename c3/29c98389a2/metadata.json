@@ -1,0 +1,25 @@
+{
+  "cli_version": "0.5.1",
+  "checkpoint_id": "c329c98389a2",
+  "strategy": "manual-commit",
+  "branch": "release-please--branches--main--components--zoho-mail",
+  "checkpoints_count": 0,
+  "files_touched": [
+    ".release-please-manifest.json"
+  ],
+  "sessions": [
+    {
+      "metadata": "/c3/29c98389a2/0/metadata.json",
+      "transcript": "/c3/29c98389a2/0/full.jsonl",
+      "content_hash": "/c3/29c98389a2/0/content_hash.txt",
+      "prompt": "/c3/29c98389a2/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 52,
+    "cache_creation_tokens": 27483,
+    "cache_read_tokens": 4905388,
+    "output_tokens": 14327,
+    "api_call_count": 48
+  }
+}
