@@ -10,14 +10,14 @@ Custom skills for [OpenClaw](https://openclaw.ai) agents, published to the [Claw
 
 | Skill | Description | Status |
 |-------|-------------|--------|
-| [google-workspace](./google-workspace/) | Read-only Gmail and Contacts, configurable Calendar access | In development |
+| [google-workspace](./google-workspace/) | Read-only Gmail and Contacts, configurable Calendar access | Published (`panthrocorp-google-workspace`) |
 
 ## Installation
 
 Install any skill via clawhub:
 
 ```bash
-clawhub install panthrocorp/google-workspace
+clawhub install panthrocorp-google-workspace
 ```
 
 ## Security

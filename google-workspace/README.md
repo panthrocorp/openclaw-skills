@@ -21,7 +21,7 @@ Every existing Google-related skill on clawskills.sh requests broad read-write O
 ## Installation
 
 ```bash
-clawhub install panthrocorp/google-workspace
+clawhub install panthrocorp-google-workspace
 ```
 
 Or build from source:
