@@ -30,9 +30,88 @@ Or build from source:
 GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -o google-workspace .
 ```
 
+## Deployment guide
+
+Follow these steps in order to deploy the skill to an OpenClaw instance.
+
+### 1. Create a Google Cloud project
+
+1. Create a new project in the [Google Cloud Console](https://console.cloud.google.com/)
+2. Enable the following APIs only:
+   - Gmail API
+   - Google Calendar API
+   - People API (Contacts)
+3. Configure the OAuth consent screen (External, but only used by the operator's own account)
+4. Create an OAuth 2.0 client ID with application type **Desktop**
+5. Note the **Client ID** and **Client Secret**
+
+### 2. Create secrets in Bitwarden Secrets Manager
+
+Create three secrets in Bitwarden SM (EU region, PanthroCorp project):
+
+| Secret key | Value |
+|------------|-------|
+| `GOOGLE_WORKSPACE_TOKEN_KEY_OPENCLAW_AWS_SANDBOX_<INSTANCE>` | Random 64-character hex string (`openssl rand -hex 32`) |
+| `GOOGLE_CLIENT_ID_OPENCLAW_AWS_SANDBOX_<INSTANCE>` | Client ID from step 1 |
+| `GOOGLE_CLIENT_SECRET_OPENCLAW_AWS_SANDBOX_<INSTANCE>` | Client secret from step 1 |
+
+### 3. Add Terraform configuration
+
+In the `openclaw` repo, add the Bitwarden secret key references to the instance's tfvars file:
+
+```hcl
+bitwarden_secret_key_google_workspace_token_key = "GOOGLE_WORKSPACE_TOKEN_KEY_OPENCLAW_AWS_SANDBOX_<INSTANCE>"  # pragma: allowlist secret
+bitwarden_secret_key_google_client_id           = "GOOGLE_CLIENT_ID_OPENCLAW_AWS_SANDBOX_<INSTANCE>"  # pragma: allowlist secret
+bitwarden_secret_key_google_client_secret       = "GOOGLE_CLIENT_SECRET_OPENCLAW_AWS_SANDBOX_<INSTANCE>"  # pragma: allowlist secret
+```
+
+### 4. Deploy
+
+Merge the Terraform changes to `main`. The deploy workflow will:
+- Create SSM parameters for the three secrets
+- Update the `.env` file on the instance with `GOOGLE_WORKSPACE_TOKEN_KEY`, `GOOGLE_CLIENT_ID`, and `GOOGLE_CLIENT_SECRET`
+- Create the `config/credentials/google-workspace/` directory
+
+### 5. Install the skill on the instance
+
+SSH in via Twingate and install:
+
+```bash
+ssh -i ~/.ssh/openclaw-operator ubuntu@<domain>
+sudo -u openclaw docker exec -it openclaw-gateway clawhub install panthrocorp-google-workspace
+```
+
+### 6. Configure scopes
+
+```bash
+sudo -u openclaw docker exec -it openclaw-gateway \
+  google-workspace config set --gmail=true --calendar=readonly --contacts=true
+```
+
+### 7. Authenticate with Google
+
+```bash
+sudo -u openclaw docker exec -it openclaw-gateway \
+  google-workspace auth login
+```
+
+1. Copy the URL printed to the terminal
+2. Open it in your local browser and authenticate with your Google account
+3. After authorisation, copy the code from the browser's address bar
+4. Paste it back into the terminal
+
+### 8. Verify
+
+```bash
+sudo -u openclaw docker exec -it openclaw-gateway google-workspace auth status
+sudo -u openclaw docker exec -it openclaw-gateway google-workspace gmail labels
+```
+
+No container restart is needed. The token is persisted on the EBS volume and the binary reads it fresh on each invocation.
+
 ## Prerequisites
 
-- A Google Cloud project with Gmail API, Calendar API, and People API enabled
+- A Google Cloud project with Gmail API, Calendar API, and People API enabled (see deployment guide above)
 - An OAuth 2.0 "Desktop" client configured in that project
 - Three environment variables on the host:
   - `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` from the OAuth client
