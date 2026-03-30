@@ -74,7 +74,9 @@ jobs:
 
       - name: Publish to clawhub
         if: success()
-        run: npx clawhub@latest publish . --slug panthrocorp-google-workspace
+        run: |
+          npx clawhub@latest login --token "$CLAWHUB_TOKEN"
+          npx clawhub@latest publish . --slug panthrocorp-google-workspace
         env:
           CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
 
@@ -125,6 +127,8 @@ jobs:
 
       - name: Publish to clawhub
         if: success()
-        run: npx clawhub@latest publish . --slug panthrocorp-zoho-mail
+        run: |
+          npx clawhub@latest login --token "$CLAWHUB_TOKEN"
+          npx clawhub@latest publish . --slug panthrocorp-zoho-mail
         env:
           CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
