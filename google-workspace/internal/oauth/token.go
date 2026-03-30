@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/panthrocorp/openclaw-skills/google-workspace/internal/crypto"
+	"github.com/PanthroCorp-Limited/openclaw-skills/google-workspace/internal/crypto"
 	"golang.org/x/oauth2"
 )
 

@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/panthrocorp/openclaw-skills/google-workspace/cmd"
+	"github.com/PanthroCorp-Limited/openclaw-skills/google-workspace/cmd"
 )
 
 var version = "dev"

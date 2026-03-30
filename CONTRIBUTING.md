@@ -58,4 +58,4 @@ New skills must include:
 - Never commit credentials, tokens, or secrets.
 - OAuth tokens must be encrypted at rest. No unencrypted storage paths.
 - Read-only access is the default. Write operations must be opt-in.
-- Report vulnerabilities via [GitHub Security Advisories](https://github.com/panthrocorp/openclaw-skills/security), not public issues.
+- Report vulnerabilities via [GitHub Security Advisories](https://github.com/PanthroCorp-Limited/openclaw-skills/security), not public issues.

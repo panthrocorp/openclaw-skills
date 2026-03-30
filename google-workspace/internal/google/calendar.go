@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/panthrocorp/openclaw-skills/google-workspace/internal/config"
+	"github.com/PanthroCorp-Limited/openclaw-skills/google-workspace/internal/config"
 	"golang.org/x/oauth2"
 	"google.golang.org/api/calendar/v3"
 	"google.golang.org/api/option"

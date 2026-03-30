@@ -1,4 +1,4 @@
-module github.com/panthrocorp/openclaw-skills/zoho-mail
+module github.com/PanthroCorp-Limited/openclaw-skills/zoho-mail
 
 go 1.26.1
 

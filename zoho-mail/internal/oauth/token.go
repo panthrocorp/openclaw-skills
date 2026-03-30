@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/panthrocorp/openclaw-skills/zoho-mail/internal/crypto"
+	"github.com/PanthroCorp-Limited/openclaw-skills/zoho-mail/internal/crypto"
 	"golang.org/x/oauth2"
 )
 

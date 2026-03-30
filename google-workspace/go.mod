@@ -1,4 +1,4 @@
-module github.com/panthrocorp/openclaw-skills/google-workspace
+module github.com/PanthroCorp-Limited/openclaw-skills/google-workspace
 
 go 1.26.1
 

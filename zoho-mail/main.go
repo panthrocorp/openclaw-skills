@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/panthrocorp/openclaw-skills/zoho-mail/cmd"
+	"github.com/PanthroCorp-Limited/openclaw-skills/zoho-mail/cmd"
 )
 
 var version = "dev"

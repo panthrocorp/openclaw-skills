@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/panthrocorp/openclaw-skills/zoho-mail/internal/oauth"
-	"github.com/panthrocorp/openclaw-skills/zoho-mail/internal/zoho"
+	"github.com/PanthroCorp-Limited/openclaw-skills/zoho-mail/internal/oauth"
+	"github.com/PanthroCorp-Limited/openclaw-skills/zoho-mail/internal/zoho"
 	"github.com/spf13/cobra"
 	"golang.org/x/oauth2"
 )
