@@ -6,7 +6,7 @@ If you discover a security vulnerability in this project, please report it throu
 
 **Do not open a public issue.**
 
-1. Navigate to the [Security tab](https://github.com/panthrocorp/openclaw-skills/security) of this repository.
+1. Navigate to the [Security tab](https://github.com/PanthroCorp-Limited/openclaw-skills/security) of this repository.
 2. Click **Report a vulnerability**.
 3. Provide a clear description of the issue, steps to reproduce, and any relevant context.
 

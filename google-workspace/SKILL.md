@@ -14,7 +14,7 @@ metadata:
       bins:
         - google-workspace
     emoji: "📧"
-    homepage: https://github.com/panthrocorp/openclaw-skills
+    homepage: https://github.com/PanthroCorp-Limited/openclaw-skills
     os: ["linux"]
 ---
 

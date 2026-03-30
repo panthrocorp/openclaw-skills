@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/panthrocorp/openclaw-skills/google-workspace/internal/config"
-	gw "github.com/panthrocorp/openclaw-skills/google-workspace/internal/google"
-	"github.com/panthrocorp/openclaw-skills/google-workspace/internal/oauth"
+	"github.com/PanthroCorp-Limited/openclaw-skills/google-workspace/internal/config"
+	gw "github.com/PanthroCorp-Limited/openclaw-skills/google-workspace/internal/google"
+	"github.com/PanthroCorp-Limited/openclaw-skills/google-workspace/internal/oauth"
 	"github.com/spf13/cobra"
 	"golang.org/x/oauth2"
 )

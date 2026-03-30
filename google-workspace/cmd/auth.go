@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/panthrocorp/openclaw-skills/google-workspace/internal/config"
-	"github.com/panthrocorp/openclaw-skills/google-workspace/internal/oauth"
+	"github.com/PanthroCorp-Limited/openclaw-skills/google-workspace/internal/config"
+	"github.com/PanthroCorp-Limited/openclaw-skills/google-workspace/internal/oauth"
 	"github.com/spf13/cobra"
 )
 
