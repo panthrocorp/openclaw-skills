@@ -1,0 +1,49 @@
+{
+  "cli_version": "0.5.1",
+  "checkpoint_id": "f79e36cef468",
+  "session_id": "6dc18778-5e96-4800-8a13-4e327516745c",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-02T14:55:24.145402439Z",
+  "branch": "feat/docs-sheets-drive-comments",
+  "checkpoints_count": 5,
+  "files_touched": [
+    "CLAUDE.md",
+    "README.md",
+    "google-workspace/CLAUDE.md",
+    "google-workspace/README.md",
+    "google-workspace/SKILL.md",
+    "google-workspace/cmd/config.go",
+    "google-workspace/cmd/docs.go",
+    "google-workspace/cmd/drive.go",
+    "google-workspace/cmd/root.go",
+    "google-workspace/cmd/sheets.go",
+    "google-workspace/internal/config/config.go",
+    "google-workspace/internal/config/config_test.go",
+    "google-workspace/internal/google/docs.go",
+    "google-workspace/internal/google/drive.go",
+    "google-workspace/internal/google/sheets.go"
+  ],
+  "agent": "Claude Code",
+  "turn_id": "dba478b3b225",
+  "checkpoint_transcript_start": 524,
+  "transcript_lines_at_start": 524,
+  "token_usage": {
+    "input_tokens": 167,
+    "cache_creation_tokens": 390201,
+    "cache_read_tokens": 27672060,
+    "output_tokens": 49010,
+    "api_call_count": 144
+  },
+  "session_metrics": {
+    "turn_count": 13
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-02T14:55:23.417516581Z",
+    "agent_lines": 1008,
+    "human_added": 0,
+    "human_modified": 29,
+    "human_removed": 18,
+    "total_committed": 1037,
+    "agent_percentage": 97.20347155255546
+  }
+}
