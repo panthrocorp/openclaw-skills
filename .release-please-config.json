@@ -4,12 +4,14 @@
     "google-workspace": {
       "release-type": "go",
       "component": "google-workspace",
-      "changelog-path": "CHANGELOG.md"
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": ["SKILL.md"]
     },
     "zoho-mail": {
       "release-type": "go",
       "component": "zoho-mail",
-      "changelog-path": "CHANGELOG.md"
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": ["SKILL.md"]
     }
   },
   "initial-version": "0.1.0",
