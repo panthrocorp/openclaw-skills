@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.1](https://github.com/PanthroCorp-Limited/openclaw-skills/compare/zoho-mail/v0.3.0...zoho-mail/v0.3.1) (2026-04-02)
+
+
+### Bug Fixes
+
+* pass version explicitly to clawhub ([#41](https://github.com/PanthroCorp-Limited/openclaw-skills/issues/41)) ([64d39ac](https://github.com/PanthroCorp-Limited/openclaw-skills/commit/64d39ac32023e85de75ea91b50d029dab53c7acb))
+* quote SKILL.md versions for clawhub ([#37](https://github.com/PanthroCorp-Limited/openclaw-skills/issues/37)) ([38f9dc3](https://github.com/PanthroCorp-Limited/openclaw-skills/commit/38f9dc3f1670782eb5ebc5ce511117bd96ad4497))
+* sync SKILL.md versions with release-please ([#33](https://github.com/PanthroCorp-Limited/openclaw-skills/issues/33)) ([bbec105](https://github.com/PanthroCorp-Limited/openclaw-skills/commit/bbec105b505b757ae9af6d61c507af37cdd3941d))
+
 ## [0.3.0](https://github.com/PanthroCorp-Limited/openclaw-skills/compare/zoho-mail/v0.2.1...zoho-mail/v0.3.0) (2026-04-02)
 
 
