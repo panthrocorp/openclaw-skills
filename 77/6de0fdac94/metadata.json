@@ -1,0 +1,35 @@
+{
+  "cli_version": "0.5.1",
+  "checkpoint_id": "776de0fdac94",
+  "strategy": "manual-commit",
+  "branch": "feat/google-drive-readonly",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "google-workspace/CLAUDE.md",
+    "google-workspace/README.md",
+    "google-workspace/SKILL.md",
+    "google-workspace/cmd/config.go",
+    "google-workspace/cmd/drive.go",
+    "google-workspace/cmd/root.go",
+    "google-workspace/go.mod",
+    "google-workspace/go.sum",
+    "google-workspace/internal/config/config.go",
+    "google-workspace/internal/config/config_test.go",
+    "google-workspace/internal/google/drive.go"
+  ],
+  "sessions": [
+    {
+      "metadata": "/77/6de0fdac94/0/metadata.json",
+      "transcript": "/77/6de0fdac94/0/full.jsonl",
+      "content_hash": "/77/6de0fdac94/0/content_hash.txt",
+      "prompt": "/77/6de0fdac94/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 75,
+    "cache_creation_tokens": 64695,
+    "cache_read_tokens": 4270317,
+    "output_tokens": 15956,
+    "api_call_count": 62
+  }
+}

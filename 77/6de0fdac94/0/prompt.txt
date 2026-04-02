@@ -1,0 +1,9 @@
+I would like to update the google skill to also work with google drive.  the ability to read only
+
+---
+
+yes autodetect
+
+default enabled yes
+
+i will need instructions, and the readme updated, as to add the oauth scope
