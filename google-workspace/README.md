@@ -4,11 +4,11 @@
 ![License](https://img.shields.io/badge/license-MIT--0-green)
 ![Platform](https://img.shields.io/badge/platform-linux%2Farm64-lightgrey)
 
-A custom OpenClaw skill providing read-only Gmail, configurable Calendar, and read-only Contacts access via the Google APIs. Built for environments where the agent instance is treated as potentially hostile.
+A custom OpenClaw skill providing read-only Gmail, Contacts, and Drive access, plus configurable Calendar, via the Google APIs. Built for environments where the agent instance is treated as potentially hostile.
 
 ## Why not use an existing skill?
 
-Every existing Google-related skill on clawskills.sh requests broad read-write OAuth scopes and most are flagged suspicious by VirusTotal or OpenClaw moderation. This skill enforces strict scope boundaries at three levels: code (no write functions for Gmail/Contacts), config (Calendar write is opt-in), and Google Cloud project (only required APIs enabled).
+Every existing Google-related skill on clawskills.sh requests broad read-write OAuth scopes and most are flagged suspicious by VirusTotal or OpenClaw moderation. This skill enforces strict scope boundaries at three levels: code (no write functions for Gmail/Contacts/Drive), config (Calendar write is opt-in), and Google Cloud project (only required APIs enabled).
 
 ## Services
 
@@ -17,6 +17,7 @@ Every existing Google-related skill on clawskills.sh requests broad read-write O
 | Gmail | `gmail.readonly` | Read-only | None |
 | Calendar | `calendar.readonly` or `calendar.events` | Configurable: `off`, `readonly`, `readwrite` | Gated by config check |
 | Contacts | `contacts.readonly` | Read-only | None |
+| Drive | `drive.readonly` | Read-only | None |
 
 ## Installation
 
@@ -41,6 +42,7 @@ Follow these steps in order to deploy the skill to an OpenClaw instance.
    - Gmail API
    - Google Calendar API
    - People API (Contacts)
+   - Google Drive API
 3. Configure the OAuth consent screen (External, but only used by the operator's own account)
 4. Create an OAuth 2.0 client ID with application type **Desktop**
 5. Note the **Client ID** and **Client Secret**
@@ -85,7 +87,7 @@ sudo -u openclaw docker exec -it openclaw-gateway clawhub install panthrocorp-go
 
 ```bash
 sudo -u openclaw docker exec -it openclaw-gateway \
-  google-workspace config set --gmail=true --calendar=readonly --contacts=true
+  google-workspace config set --gmail=true --calendar=readonly --contacts=true --drive=true
 ```
 
 ### 7. Authenticate with Google
@@ -111,9 +113,25 @@ sudo -u openclaw docker exec -it openclaw-gateway google-workspace gmail labels
 
 No container restart is needed. The token is persisted on the EBS volume and the binary reads it fresh on each invocation.
 
+## Upgrading from a previous version
+
+If you are upgrading from a version that did not include Drive support, you need to:
+
+1. Enable the **Google Drive API** in your Google Cloud project at [console.cloud.google.com/apis/library/drive.googleapis.com](https://console.cloud.google.com/apis/library/drive.googleapis.com)
+2. Re-authenticate to obtain a token with the new `drive.readonly` scope:
+   ```bash
+   google-workspace auth login
+   ```
+
+The new `drive` config field defaults to `true`. If you do not want Drive access, disable it before re-authenticating:
+
+```bash
+google-workspace config set --drive=false
+```
+
 ## Prerequisites
 
-- A Google Cloud project with Gmail API, Calendar API, and People API enabled (see deployment guide above)
+- A Google Cloud project with Gmail API, Calendar API, People API, and Google Drive API enabled (see deployment guide above)
 - An OAuth 2.0 "Desktop" client configured in that project
 - Three environment variables on the host:
   - `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` from the OAuth client
@@ -124,7 +142,7 @@ No container restart is needed. The token is persisted on the EBS volume and the
 ### Configure scopes
 
 ```bash
-google-workspace config set --gmail=true --calendar=readonly --contacts=true
+google-workspace config set --gmail=true --calendar=readonly --contacts=true --drive=true
 google-workspace config show
 ```
 
@@ -166,6 +184,17 @@ google-workspace contacts search --query "John"
 google-workspace contacts get --id "people/c1234567890"
 ```
 
+### Drive (read-only)
+
+```bash
+google-workspace drive list --max-results 20
+google-workspace drive list --query "name contains 'report'" --max-results 10
+google-workspace drive get --id FILE_ID
+google-workspace drive download --id FILE_ID
+```
+
+Google Docs are exported as plain text, Sheets as CSV, and Slides as plain text. All other files download as raw bytes.
+
 ### Check auth status
 
 ```bash
@@ -182,8 +211,9 @@ Default token location: `~/.openclaw/credentials/google-workspace/token.enc`
 
 - Gmail has no send, modify, or delete code paths. The `internal/google/gmail.go` file only contains `messages.list`, `messages.get`, `labels.list`, and `threads` operations.
 - Contacts has no create, update, or delete code paths.
+- Drive has no create, update, or delete code paths. Only file listing, metadata retrieval, and content download/export are supported.
 - Calendar write operations check `config.CalendarMode == "readwrite"` at runtime and return an error if the mode is `readonly`.
-- The Google Cloud project should only have Gmail API, Calendar API, and People API enabled, providing server-side scope enforcement.
+- The Google Cloud project should only have Gmail API, Calendar API, People API, and Google Drive API enabled, providing server-side scope enforcement.
 - Token encryption uses a random salt per encryption, preventing identical tokens from producing identical ciphertext.
 
 ## Development

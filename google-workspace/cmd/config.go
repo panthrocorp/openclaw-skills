@@ -32,6 +32,7 @@ var (
 	setGmail    *bool
 	setCalendar string
 	setContacts *bool
+	setDrive    *bool
 )
 
 var configSetCmd = &cobra.Command{
@@ -53,6 +54,9 @@ var configSetCmd = &cobra.Command{
 		if cmd.Flags().Changed("contacts") {
 			cfg.Contacts = *setContacts
 		}
+		if cmd.Flags().Changed("drive") {
+			cfg.Drive = *setDrive
+		}
 
 		if err := config.Save(configDir, cfg); err != nil {
 			exitf("saving config: %v", err)
@@ -68,6 +72,7 @@ func init() {
 	setGmail = configSetCmd.Flags().Bool("gmail", true, "enable Gmail read-only access")
 	configSetCmd.Flags().StringVar(&setCalendar, "calendar", "readonly", "calendar mode: off, readonly, or readwrite")
 	setContacts = configSetCmd.Flags().Bool("contacts", true, "enable Contacts read-only access")
+	setDrive = configSetCmd.Flags().Bool("drive", true, "enable Drive read-only access")
 
 	configCmd.AddCommand(configShowCmd, configSetCmd)
 	rootCmd.AddCommand(configCmd)

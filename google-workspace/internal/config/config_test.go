@@ -17,6 +17,9 @@ func TestDefaultConfig(t *testing.T) {
 	if !cfg.Contacts {
 		t.Error("expected contacts enabled by default")
 	}
+	if !cfg.Drive {
+		t.Error("expected drive enabled by default")
+	}
 }
 
 func TestValidate(t *testing.T) {
@@ -33,7 +36,7 @@ func TestValidate(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cfg := Config{Gmail: true, Calendar: tt.mode, Contacts: true}
+			cfg := Config{Gmail: true, Calendar: tt.mode, Contacts: true, Drive: true}
 			err := cfg.Validate()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Validate() error = %v, wantErr %v", err, tt.wantErr)
@@ -48,11 +51,12 @@ func TestOAuthScopes(t *testing.T) {
 		cfg    Config
 		expect int
 	}{
-		{"all enabled readonly", Config{Gmail: true, Calendar: CalendarReadOnly, Contacts: true}, 3},
-		{"all enabled readwrite", Config{Gmail: true, Calendar: CalendarReadWrite, Contacts: true}, 3},
-		{"gmail only", Config{Gmail: true, Calendar: CalendarOff, Contacts: false}, 1},
-		{"nothing", Config{Gmail: false, Calendar: CalendarOff, Contacts: false}, 0},
-		{"calendar only", Config{Gmail: false, Calendar: CalendarReadOnly, Contacts: false}, 1},
+		{"all enabled readonly", Config{Gmail: true, Calendar: CalendarReadOnly, Contacts: true, Drive: true}, 4},
+		{"all enabled readwrite", Config{Gmail: true, Calendar: CalendarReadWrite, Contacts: true, Drive: true}, 4},
+		{"gmail only", Config{Gmail: true, Calendar: CalendarOff, Contacts: false, Drive: false}, 1},
+		{"nothing", Config{Gmail: false, Calendar: CalendarOff, Contacts: false, Drive: false}, 0},
+		{"calendar only", Config{Gmail: false, Calendar: CalendarReadOnly, Contacts: false, Drive: false}, 1},
+		{"drive only", Config{Gmail: false, Calendar: CalendarOff, Contacts: false, Drive: true}, 1},
 	}
 
 	for _, tt := range tests {
@@ -72,6 +76,7 @@ func TestSaveAndLoad(t *testing.T) {
 		Gmail:    true,
 		Calendar: CalendarReadWrite,
 		Contacts: false,
+		Drive:    true,
 	}
 
 	if err := Save(dir, cfg); err != nil {
@@ -83,7 +88,7 @@ func TestSaveAndLoad(t *testing.T) {
 		t.Fatalf("Load: %v", err)
 	}
 
-	if loaded.Gmail != cfg.Gmail || loaded.Calendar != cfg.Calendar || loaded.Contacts != cfg.Contacts {
+	if loaded.Gmail != cfg.Gmail || loaded.Calendar != cfg.Calendar || loaded.Contacts != cfg.Contacts || loaded.Drive != cfg.Drive {
 		t.Errorf("loaded config does not match saved: got %+v, want %+v", loaded, cfg)
 	}
 }

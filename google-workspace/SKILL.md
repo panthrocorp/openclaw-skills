@@ -1,6 +1,6 @@
 ---
 name: Google Workspace
-description: Read-only Gmail and Contacts access with configurable Calendar (readonly or readwrite) for OpenClaw agents
+description: Read-only Gmail, Contacts, and Drive access with configurable Calendar (readonly or readwrite) for OpenClaw agents
 version: 0.2.0
 author: panthrocorp
 license: MIT-0
@@ -20,7 +20,7 @@ metadata:
 
 # Google Workspace Skill
 
-Access Gmail (read-only), Google Calendar (configurable), and Google Contacts (read-only).
+Access Gmail (read-only), Google Calendar (configurable), Google Contacts (read-only), and Google Drive (read-only).
 
 ## Installation
 
@@ -39,6 +39,7 @@ chmod +x ~/.openclaw/bin/google-workspace
 
 - Gmail is strictly read-only. You cannot send, modify, or delete emails.
 - Contacts is strictly read-only. You cannot create, modify, or delete contacts.
+- Drive is strictly read-only. You cannot create, modify, or delete files.
 - Calendar access depends on the configured mode. Check with `google-workspace config show`.
 
 ## Check configuration
@@ -119,6 +120,28 @@ google-workspace contacts search --query "John"
 Get a specific contact:
 ```
 google-workspace contacts get --id "people/c1234567890"
+```
+
+## Drive commands
+
+List files:
+```
+google-workspace drive list --max-results 20
+```
+
+Search files:
+```
+google-workspace drive list --query "name contains 'report'" --max-results 10
+```
+
+Get file metadata:
+```
+google-workspace drive get --id FILE_ID
+```
+
+Download file content (Google Docs export as plain text, Sheets as CSV):
+```
+google-workspace drive download --id FILE_ID
 ```
 
 ## Authentication status

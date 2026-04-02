@@ -22,6 +22,7 @@ type Config struct {
 	Gmail    bool         `json:"gmail"`
 	Calendar CalendarMode `json:"calendar"`
 	Contacts bool         `json:"contacts"`
+	Drive    bool         `json:"drive"`
 }
 
 // DefaultConfig returns the default (most restrictive) configuration.
@@ -30,6 +31,7 @@ func DefaultConfig() Config {
 		Gmail:    true,
 		Calendar: CalendarReadOnly,
 		Contacts: true,
+		Drive:    true,
 	}
 }
 
@@ -107,6 +109,10 @@ func (c Config) OAuthScopes() []string {
 
 	if c.Contacts {
 		scopes = append(scopes, "https://www.googleapis.com/auth/contacts.readonly")
+	}
+
+	if c.Drive {
+		scopes = append(scopes, "https://www.googleapis.com/auth/drive.readonly")
 	}
 
 	return scopes

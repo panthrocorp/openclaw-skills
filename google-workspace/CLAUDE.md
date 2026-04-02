@@ -2,21 +2,21 @@
 
 ## Overview
 
-Read-only Gmail and Contacts skill with configurable Calendar access. Security-first design: write code paths for Gmail and Contacts do not exist in the codebase.
+Read-only Gmail, Contacts, and Drive skill with configurable Calendar access. Security-first design: write code paths for Gmail, Contacts, and Drive do not exist in the codebase.
 
 ## Architecture
 
-- `cmd/` — Cobra CLI. Service commands (`gmail`, `calendar`, `contacts`, `auth`, `config`) register on `rootCmd`. Helper functions `gmailClient()`, `calendarClient()`, `contactsClient()` handle config loading, scope validation, token decryption, and API client construction inline.
-- `internal/config/config.go` — JSON config model with three fields: `Gmail bool`, `Contacts bool`, and `Calendar CalendarMode` (`off`, `readonly`, `readwrite`). `CalendarMode` is the only multi-state gate; Gmail and Contacts are simple on/off booleans. `Config.OAuthScopes()` derives the OAuth scope list from the current config; scopes expand as services are enabled. Changing any value requires re-authentication to issue a new token with the updated scopes.
+- `cmd/` — Cobra CLI. Service commands (`gmail`, `calendar`, `contacts`, `drive`, `auth`, `config`) register on `rootCmd`. Helper functions `gmailClient()`, `calendarClient()`, `contactsClient()`, `driveClient()` handle config loading, scope validation, token decryption, and API client construction inline.
+- `internal/config/config.go` — JSON config model with four fields: `Gmail bool`, `Contacts bool`, `Drive bool`, and `Calendar CalendarMode` (`off`, `readonly`, `readwrite`). `CalendarMode` is the only multi-state gate; Gmail, Contacts, and Drive are simple on/off booleans. `Config.OAuthScopes()` derives the OAuth scope list from the current config; scopes expand as services are enabled. Changing any value requires re-authentication to issue a new token with the updated scopes.
 - `internal/oauth/` — OAuth2 Desktop flow with a localhost redirect. `InteractiveLogin` prompts for the **code value only** (the part after `code=` and before `&scope=` in the redirect URL). The browser fails to load `http://localhost`, and the operator copies the code parameter value from the URL bar. This differs from zoho-mail, which takes the full redirect URL.
-- `internal/google/` — Thin typed wrappers around Google API services. Each wrapper exposes only the operations the skill permits: `GmailClient` has no send/modify/delete; `ContactsClient` has no write operations.
+- `internal/google/` — Thin typed wrappers around Google API services. Each wrapper exposes only the operations the skill permits: `GmailClient` has no send/modify/delete; `ContactsClient` has no write operations; `DriveClient` has no create/update/delete operations and auto-detects Google Workspace files for export vs direct download.
 - `internal/crypto/` — AES-256-GCM with HKDF-SHA256 key derivation. Wire format: `salt (16B) || nonce (12B) || ciphertext+tag`.
 
 ## Scope enforcement (three layers)
 
 1. Code: write methods do not exist in `internal/google/`.
 2. Config: Calendar write operations check `config.CalendarMode == "readwrite"` at runtime and return an error otherwise.
-3. Google Cloud project: only Gmail API, Calendar API, and People API should be enabled, providing server-side enforcement.
+3. Google Cloud project: only Gmail API, Calendar API, People API, and Google Drive API should be enabled, providing server-side enforcement.
 
 ## Required environment variables
 
