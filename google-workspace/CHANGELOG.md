@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/PanthroCorp-Limited/openclaw-skills/compare/google-workspace/v0.3.0...google-workspace/v0.4.0) (2026-04-02)
+
+
+### Features
+
+* add read-only Google Drive support ([#30](https://github.com/PanthroCorp-Limited/openclaw-skills/issues/30)) ([703c312](https://github.com/PanthroCorp-Limited/openclaw-skills/commit/703c3125b258390513eedd2f7c3063db3e5afef6))
+
 ## [0.3.0](https://github.com/PanthroCorp-Limited/openclaw-skills/compare/google-workspace/v0.2.0...google-workspace/v0.3.0) (2026-03-30)
 
 
