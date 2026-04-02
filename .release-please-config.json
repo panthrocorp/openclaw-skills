@@ -5,13 +5,25 @@
       "release-type": "go",
       "component": "google-workspace",
       "changelog-path": "CHANGELOG.md",
-      "extra-files": ["SKILL.md"]
+      "extra-files": [
+        {
+          "type": "yaml",
+          "path": "SKILL.md",
+          "jsonpath": "$.version"
+        }
+      ]
     },
     "zoho-mail": {
       "release-type": "go",
       "component": "zoho-mail",
       "changelog-path": "CHANGELOG.md",
-      "extra-files": ["SKILL.md"]
+      "extra-files": [
+        {
+          "type": "yaml",
+          "path": "SKILL.md",
+          "jsonpath": "$.version"
+        }
+      ]
     }
   },
   "initial-version": "0.1.0",

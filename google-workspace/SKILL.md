@@ -1,7 +1,7 @@
 ---
 name: Google Workspace
 description: Read-only Gmail, Contacts, and Drive access with configurable Calendar (readonly or readwrite) for OpenClaw agents
-version: "0.4.2" # x-release-please-version
+version: 0.4.2
 author: panthrocorp
 license: MIT-0
 metadata:

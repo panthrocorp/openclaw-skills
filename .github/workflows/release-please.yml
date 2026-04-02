@@ -75,10 +75,12 @@ jobs:
       - name: Publish to clawhub
         if: success()
         run: |
+          SEMVER="${VERSION#v}"
           npx clawhub@latest login --token "$CLAWHUB_TOKEN"
-          npx clawhub@latest publish . --slug panthrocorp-google-workspace
+          npx clawhub@latest publish . --slug panthrocorp-google-workspace --version "$SEMVER"
         env:
           CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
 
   publish-zoho-mail:
     name: Publish zoho-mail
@@ -128,7 +130,9 @@ jobs:
       - name: Publish to clawhub
         if: success()
         run: |
+          SEMVER="${VERSION#v}"
           npx clawhub@latest login --token "$CLAWHUB_TOKEN"
-          npx clawhub@latest publish . --slug panthrocorp-zoho-mail
+          npx clawhub@latest publish . --slug panthrocorp-zoho-mail --version "$SEMVER"
         env:
           CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}

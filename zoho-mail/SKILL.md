@@ -1,7 +1,7 @@
 ---
 name: Zoho Mail
 description: Full read/write Zoho Mail access for OpenClaw agents
-version: "0.3.0" # x-release-please-version
+version: 0.3.0
 author: panthrocorp
 license: MIT-0
 metadata:
