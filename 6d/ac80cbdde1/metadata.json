@@ -1,0 +1,25 @@
+{
+  "cli_version": "0.5.1",
+  "checkpoint_id": "6dac80cbdde1",
+  "strategy": "manual-commit",
+  "branch": "fix/clawhub-version-override",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".release-please-config.json"
+  ],
+  "sessions": [
+    {
+      "metadata": "/6d/ac80cbdde1/0/metadata.json",
+      "transcript": "/6d/ac80cbdde1/0/full.jsonl",
+      "content_hash": "/6d/ac80cbdde1/0/content_hash.txt",
+      "prompt": "/6d/ac80cbdde1/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 488,
+    "cache_creation_tokens": 286212,
+    "cache_read_tokens": 15600056,
+    "output_tokens": 35074,
+    "api_call_count": 172
+  }
+}
