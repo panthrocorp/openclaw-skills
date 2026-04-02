@@ -40,8 +40,8 @@ GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -o <skill-name> .
 
 Each skill follows a layered pattern:
 
-- `cmd/` uses Cobra for CLI subcommands. Each service (gmail, calendar, contacts) has its own file registering commands onto `rootCmd`. Helper functions like `gmailClient()` handle config loading, token decryption, and API client creation inline.
-- `internal/config/` holds a JSON config model (`config.json`) that gates which services are active and at what access level (e.g. `CalendarMode` with off/readonly/readwrite). Config drives OAuth scope selection via `Config.OAuthScopes()`.
+- `cmd/` uses Cobra for CLI subcommands. Each service (gmail, calendar, contacts, drive, docs, sheets) has its own file registering commands onto `rootCmd`. Helper functions like `gmailClient()` handle config loading, token decryption, and API client creation inline.
+- `internal/config/` holds a JSON config model (`config.json`) that gates which services are active and at what access level. A unified `ServiceMode` type (`off`/`readonly`/`readwrite`) is used by Calendar, Drive, Docs, and Sheets. Gmail and Contacts are simple on/off booleans. Config drives OAuth scope selection via `Config.OAuthScopes()`.
 - `internal/oauth/` handles the OAuth2 Desktop flow (localhost redirect) and encrypted token storage. Tokens are stored as `token.enc` (AES-256-GCM encrypted JSON). `SaveToken` refuses to write without an encryption key; there is no unencrypted fallback.
 - `internal/crypto/` implements AES-256-GCM with HKDF-SHA256 key derivation. Wire format: `salt (16B) || nonce (12B) || ciphertext+tag`.
 - `internal/google/` contains thin typed wrappers around Google API services. Each wrapper exposes only the operations the skill permits (e.g. `GmailClient` has no send/modify/delete methods).
@@ -73,6 +73,14 @@ Releases are automated via [release-please](https://github.com/googleapis/releas
 Tags are scoped per skill: `google-workspace/v0.1.0`, not `v0.1.0`. GoReleaser config lives inside each skill directory.
 
 Configuration lives in `.release-please-config.json` (package definitions) and `.release-please-manifest.json` (current versions).
+
+### SKILL.md version management
+
+Release-please updates the `version` field in each skill's `SKILL.md` via a `type: yaml` updater with `jsonpath: $.version` configured in `extra-files`. The `clawhub publish` step passes `--version` explicitly from the release tag rather than relying on clawhub's YAML parser (which cannot handle inline comments or quoted values in frontmatter).
+
+### Release-please PR merging
+
+Release-please bot PRs must be merged manually. GitHub does not trigger `pull_request` workflows for events created by other GitHub Actions, so the auto-merge workflow (`release-please-auto-merge.yml`) does not fire on bot-opened PRs. Dependabot auto-merge works because Dependabot is a first-party GitHub feature.
 
 ## Adding a new skill
 

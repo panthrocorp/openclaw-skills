@@ -32,7 +32,7 @@ func defaultConfigDir() string {
 
 var rootCmd = &cobra.Command{
 	Use:     "google-workspace",
-	Short:   "Read-only Gmail, Drive, Contacts, and configurable Calendar for OpenClaw agents",
+	Short:   "Gmail, Calendar, Contacts, Drive, Docs, and Sheets for OpenClaw agents",
 	Version: version,
 }
 

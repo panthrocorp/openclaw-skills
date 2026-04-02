@@ -2,14 +2,19 @@ package google
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"strings"
 
+	"github.com/PanthroCorp-Limited/openclaw-skills/google-workspace/internal/config"
 	"golang.org/x/oauth2"
 	"google.golang.org/api/drive/v3"
 	"google.golang.org/api/option"
 )
+
+// ErrDriveReadOnly is returned when a write operation is attempted in readonly mode.
+var ErrDriveReadOnly = errors.New("drive is configured as readonly; change to readwrite with 'google-workspace config set --drive=readwrite' then re-authenticate")
 
 // googleAppsMIMEExports maps Google Workspace MIME types to their plain-text
 // export equivalents. Files with these MIME types cannot be downloaded directly
@@ -20,19 +25,21 @@ var googleAppsMIMEExports = map[string]string{
 	"application/vnd.google-apps.presentation": "text/plain",
 }
 
-// DriveClient provides read-only access to the Google Drive API.
-// No create, update, or delete operations exist in this type.
+// DriveClient provides access to the Google Drive API with configurable
+// read/write mode. File write operations do not exist in this type; write
+// access is limited to comments.
 type DriveClient struct {
-	svc *drive.Service
+	svc  *drive.Service
+	mode config.ServiceMode
 }
 
 // NewDriveClient creates a Drive API client using the provided token source.
-func NewDriveClient(ctx context.Context, ts oauth2.TokenSource) (*DriveClient, error) {
+func NewDriveClient(ctx context.Context, ts oauth2.TokenSource, mode config.ServiceMode) (*DriveClient, error) {
 	svc, err := drive.NewService(ctx, option.WithTokenSource(ts))
 	if err != nil {
 		return nil, fmt.Errorf("creating drive service: %w", err)
 	}
-	return &DriveClient{svc: svc}, nil
+	return &DriveClient{svc: svc, mode: mode}, nil
 }
 
 // driveFileFields is the default field mask for file list responses.
@@ -101,4 +108,47 @@ func (c *DriveClient) DownloadFile(ctx context.Context, fileID string) (io.ReadC
 // that requires export rather than direct download.
 func IsGoogleAppsFile(mimeType string) bool {
 	return strings.HasPrefix(mimeType, "application/vnd.google-apps.")
+}
+
+// ListComments returns comments on a file. Works in both readonly and readwrite modes.
+func (c *DriveClient) ListComments(ctx context.Context, fileID string, maxResults int64) ([]*drive.Comment, error) {
+	resp, err := c.svc.Comments.List(fileID).
+		PageSize(maxResults).
+		Fields("comments(id,author(displayName,emailAddress),content,createdTime,resolved,replies(id,author(displayName,emailAddress),content,createdTime))").
+		Context(ctx).
+		Do()
+	if err != nil {
+		return nil, fmt.Errorf("listing comments on %s: %w", fileID, err)
+	}
+	return resp.Comments, nil
+}
+
+// CreateComment adds a comment to a file. Requires readwrite mode.
+func (c *DriveClient) CreateComment(ctx context.Context, fileID, content string) (*drive.Comment, error) {
+	if c.mode != config.ModeReadWrite {
+		return nil, ErrDriveReadOnly
+	}
+	comment, err := c.svc.Comments.Create(fileID, &drive.Comment{Content: content}).
+		Fields("id,author(displayName,emailAddress),content,createdTime").
+		Context(ctx).
+		Do()
+	if err != nil {
+		return nil, fmt.Errorf("creating comment on %s: %w", fileID, err)
+	}
+	return comment, nil
+}
+
+// ReplyToComment replies to an existing comment. Requires readwrite mode.
+func (c *DriveClient) ReplyToComment(ctx context.Context, fileID, commentID, content string) (*drive.Reply, error) {
+	if c.mode != config.ModeReadWrite {
+		return nil, ErrDriveReadOnly
+	}
+	reply, err := c.svc.Replies.Create(fileID, commentID, &drive.Reply{Content: content}).
+		Fields("id,author(displayName,emailAddress),content,createdTime").
+		Context(ctx).
+		Do()
+	if err != nil {
+		return nil, fmt.Errorf("replying to comment %s on %s: %w", commentID, fileID, err)
+	}
+	return reply, nil
 }

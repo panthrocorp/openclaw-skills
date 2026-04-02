@@ -16,7 +16,7 @@ var driveCmd = &cobra.Command{
 	Short: "Read-only Google Drive operations",
 }
 
-func driveClient() (*gw.DriveClient, context.Context) {
+func driveClient() (*gw.DriveClient, config.ServiceMode, context.Context) {
 	ctx := context.Background()
 	key := encryptionKey()
 	if key == "" {
@@ -27,8 +27,8 @@ func driveClient() (*gw.DriveClient, context.Context) {
 	if err != nil {
 		exitf("loading config: %v", err)
 	}
-	if !cfg.Drive {
-		exitf("drive is disabled in config; run 'google-workspace config set --drive=true'")
+	if cfg.Drive == config.ModeOff {
+		exitf("drive is disabled in config; run 'google-workspace config set --drive=readonly'")
 	}
 
 	token, err := oauth.LoadToken(configDir, key)
@@ -39,11 +39,11 @@ func driveClient() (*gw.DriveClient, context.Context) {
 	oauthCfg := oauth.NewOAuthConfig(clientID(), clientSecret(), cfg.OAuthScopes())
 	ts := oauthCfg.TokenSource(ctx, token)
 
-	client, err := gw.NewDriveClient(ctx, ts)
+	client, err := gw.NewDriveClient(ctx, ts, cfg.Drive)
 	if err != nil {
 		exitf("creating drive client: %v", err)
 	}
-	return client, ctx
+	return client, cfg.Drive, ctx
 }
 
 var (
@@ -55,7 +55,7 @@ var driveListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List files in Google Drive",
 	Run: func(cmd *cobra.Command, args []string) {
-		client, ctx := driveClient()
+		client, _, ctx := driveClient()
 		files, err := client.ListFiles(ctx, driveListQuery, driveListMaxResults)
 		if err != nil {
 			exitf("%v", err)
@@ -73,7 +73,7 @@ var driveGetCmd = &cobra.Command{
 		if driveGetID == "" {
 			exitf("--id is required")
 		}
-		client, ctx := driveClient()
+		client, _, ctx := driveClient()
 		file, err := client.GetFile(ctx, driveGetID)
 		if err != nil {
 			exitf("%v", err)
@@ -92,7 +92,7 @@ var driveDownloadCmd = &cobra.Command{
 		if driveDownloadID == "" {
 			exitf("--id is required")
 		}
-		client, ctx := driveClient()
+		client, _, ctx := driveClient()
 		rc, err := client.DownloadFile(ctx, driveDownloadID)
 		if err != nil {
 			exitf("%v", err)
@@ -105,6 +105,92 @@ var driveDownloadCmd = &cobra.Command{
 	},
 }
 
+// Drive comments
+
+var driveCommentsCmd = &cobra.Command{
+	Use:   "comments",
+	Short: "Manage comments on Drive files",
+}
+
+var (
+	driveCommentsListFileID     string
+	driveCommentsListMaxResults int64
+)
+
+var driveCommentsListCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List comments on a file",
+	Run: func(cmd *cobra.Command, args []string) {
+		if driveCommentsListFileID == "" {
+			exitf("--file-id is required")
+		}
+		client, _, ctx := driveClient()
+		comments, err := client.ListComments(ctx, driveCommentsListFileID, driveCommentsListMaxResults)
+		if err != nil {
+			exitf("%v", err)
+		}
+		printJSON(comments)
+	},
+}
+
+var (
+	driveCommentFileID  string
+	driveCommentContent string
+)
+
+var driveCommentCmd = &cobra.Command{
+	Use:   "comment",
+	Short: "Add a comment to a file (requires readwrite mode)",
+	Run: func(cmd *cobra.Command, args []string) {
+		if driveCommentFileID == "" {
+			exitf("--file-id is required")
+		}
+		if driveCommentContent == "" {
+			exitf("--content is required")
+		}
+		client, mode, ctx := driveClient()
+		if mode != config.ModeReadWrite {
+			exitf("drive is configured as %s; change to readwrite with 'google-workspace config set --drive=readwrite' then re-authenticate", mode)
+		}
+		comment, err := client.CreateComment(ctx, driveCommentFileID, driveCommentContent)
+		if err != nil {
+			exitf("%v", err)
+		}
+		printJSON(comment)
+	},
+}
+
+var (
+	driveReplyFileID    string
+	driveReplyCommentID string
+	driveReplyContent   string
+)
+
+var driveCommentReplyCmd = &cobra.Command{
+	Use:   "reply",
+	Short: "Reply to a comment on a file (requires readwrite mode)",
+	Run: func(cmd *cobra.Command, args []string) {
+		if driveReplyFileID == "" {
+			exitf("--file-id is required")
+		}
+		if driveReplyCommentID == "" {
+			exitf("--comment-id is required")
+		}
+		if driveReplyContent == "" {
+			exitf("--content is required")
+		}
+		client, mode, ctx := driveClient()
+		if mode != config.ModeReadWrite {
+			exitf("drive is configured as %s; change to readwrite with 'google-workspace config set --drive=readwrite' then re-authenticate", mode)
+		}
+		reply, err := client.ReplyToComment(ctx, driveReplyFileID, driveReplyCommentID, driveReplyContent)
+		if err != nil {
+			exitf("%v", err)
+		}
+		printJSON(reply)
+	},
+}
+
 func init() {
 	driveListCmd.Flags().StringVar(&driveListQuery, "query", "", "Drive search query (e.g. \"name contains 'report'\")")
 	driveListCmd.Flags().Int64Var(&driveListMaxResults, "max-results", 20, "maximum number of results")
@@ -113,6 +199,18 @@ func init() {
 
 	driveDownloadCmd.Flags().StringVar(&driveDownloadID, "id", "", "file ID")
 
-	driveCmd.AddCommand(driveListCmd, driveGetCmd, driveDownloadCmd)
+	driveCommentsListCmd.Flags().StringVar(&driveCommentsListFileID, "file-id", "", "file ID")
+	driveCommentsListCmd.Flags().Int64Var(&driveCommentsListMaxResults, "max-results", 20, "maximum number of comments")
+
+	driveCommentCmd.Flags().StringVar(&driveCommentFileID, "file-id", "", "file ID")
+	driveCommentCmd.Flags().StringVar(&driveCommentContent, "content", "", "comment text")
+
+	driveCommentReplyCmd.Flags().StringVar(&driveReplyFileID, "file-id", "", "file ID")
+	driveCommentReplyCmd.Flags().StringVar(&driveReplyCommentID, "comment-id", "", "comment ID to reply to")
+	driveCommentReplyCmd.Flags().StringVar(&driveReplyContent, "content", "", "reply text")
+
+	driveCommentsCmd.AddCommand(driveCommentsListCmd)
+	driveCommentCmd.AddCommand(driveCommentReplyCmd)
+	driveCmd.AddCommand(driveListCmd, driveGetCmd, driveDownloadCmd, driveCommentsCmd, driveCommentCmd)
 	rootCmd.AddCommand(driveCmd)
 }
