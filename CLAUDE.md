@@ -84,12 +84,23 @@ Release-please bot PRs must be merged manually. GitHub does not trigger `pull_re
 
 ## Adding a new skill
 
+### Go-based skills
+
 1. Create a new directory at the repo root with its own `go.mod`, `main.go`, `cmd/`, and `internal/` packages.
 2. Add a `SKILL.md` with YAML frontmatter (see `google-workspace/SKILL.md` for the schema).
 3. Add a `.goreleaser.yml` for cross-compilation.
 4. Include an MIT-0 `LICENSE` file (clawhub requirement).
 5. Add a `gomod` entry for the new skill directory in `.github/dependabot.yml`.
-6. Add the new skill path to `.release-please-config.json` and `.release-please-manifest.json`.
+6. Add the new skill path to `.release-please-config.json` (with `release-type: "go"`) and `.release-please-manifest.json`.
+
+### npm-based skills
+
+1. Create a new directory at the repo root with `package.json`, source files, and an esbuild config.
+2. Add a `SKILL.md` with YAML frontmatter (see `aws-s3/SKILL.md` for the schema). Use `requires.npm` instead of `requires.bins`.
+3. Include an MIT-0 `LICENSE` file (clawhub requirement).
+4. Add an `npm` entry for the new skill directory in `.github/dependabot.yml`.
+5. Add the new skill path to `.release-please-config.json` (with `release-type: "node"`) and `.release-please-manifest.json`.
+6. Add a `build-npm` style CI job and a publish job in the release workflow.
 
 ## Git conventions
 

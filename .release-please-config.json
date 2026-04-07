@@ -24,6 +24,18 @@
           "jsonpath": "$.version"
         }
       ]
+    },
+    "aws-s3": {
+      "release-type": "node",
+      "component": "aws-s3",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "yaml",
+          "path": "SKILL.md",
+          "jsonpath": "$.version"
+        }
+      ]
     }
   },
   "initial-version": "0.1.0",

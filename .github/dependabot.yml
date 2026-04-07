@@ -21,6 +21,16 @@ updates:
       - dependencies
     open-pull-requests-limit: 5
 
+  - package-ecosystem: npm
+    directory: /aws-s3
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "fix"
+    labels:
+      - dependencies
+    open-pull-requests-limit: 5
+
   - package-ecosystem: github-actions
     directory: /
     schedule:
