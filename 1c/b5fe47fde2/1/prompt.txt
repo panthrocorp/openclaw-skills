@@ -1,0 +1,1245 @@
+read https://linear.app/panthrocorp/issue/PAN-53/feat-aws-s3-sdk-skill-for-container-scripts
+
+---
+
+1 name is fine.  Welcome suggestions
+2 self contained is fine
+3 yes i want it via clawhub
+4 open to suggestions
+
+---
+
+<task-notification>
+<task-id>a5d4ea85047871f73</task-id>
+<tool-use-id>toolu_01NzBp4G4sqrYyrLRzaVzxvx</tool-use-id>
+<output-file>/tmp/claude-1000/-home-listellm-repos-panthrocorp-openclaw-skills/705d5f7a-c4e0-4188-9214-cf99762ee2e5/tasks/a5d4ea85047871f73.output</output-file>
+<status>completed</status>
+<summary>Agent "Explore npm bundling patterns" completed</summary>
+<result>Perfect! Now let me create a comprehensive summary of my findings.
+
+## Summary of Findings
+
+I've completed a thorough search of the openclaw-skills repository. Here are the results:
+
+### 1. **JavaScript/TypeScript/Node.js Files**
+**Result: NONE FOUND**
+- No `.js`, `.ts`, `.tsx`, or `.jsx` files exist in the repository
+- The repository is exclusively Go-based
+
+### 2. **Package.json Files**
+**Result: NONE FOUND**
+- No `package.json` files in the repository
+- The codebase does not use npm or Node.js for any existing skills
+
+### 3. **Bundler Configurations**
+**Result: NONE FOUND**
+- No webpack, rollup, esbuild, vite, or other bundler configuration files
+- Go projects use GoReleaser instead (see below)
+
+### 4. **References to "npm", "node", "linearis"**
+**Result: Limited Node.js references in CI/CD only**
+- **npm references**: Found only in the release pipeline (GitHub Actions workflows)
+  - Lines 79-80 and 134-135 in `/home/listellm/repos/panthrocorp/openclaw-skills/.github/workflows/release-please.yml` use `npx clawhub@latest` for publishing
+  - This is for invoking the clawhub CLI tool, not for building/testing the skills
+- **node references**: None found (only Go version files)
+- **linearis references**: None found
+
+### 5. **tsconfig Files**
+**Result: NONE FOUND**
+- No TypeScript configuration files
+
+### 6. **Node Version Files**
+**Result: NONE FOUND**
+- No `.nvmrc` or `.node-version` files
+
+### 7. **Monorepo Tooling**
+**Result: NONE FOUND**
+- No lerna.json, nx.json, pnpm-workspace.yaml, or turborepo configuration
+- Repository uses release-please for multi-package releases (Go-based)
+
+### Repository Structure Overview
+
+The repository follows this pattern for **Go-based skills**:
+
+```
+openclaw-skills/
+├── google-workspace/
+│   ├── go.mod (Go 1.26.1)
+│   ├── go.sum
+│   ├── main.go
+│   ├── .goreleaser.yml (cross-compilation config)
+│   ├── cmd/ (Cobra CLI commands)
+│   ├── internal/ (Go packages)
+│   ├── SKILL.md (OpenClaw manifest)
+│   ├── LICENSE (MIT-0)
+│   └── CHANGELOG.md
+├── zoho-mail/
+│   └── (same structure as google-workspace)
+├── .github/workflows/
+│   ├── ci.yml (Go build/test on PR)
+│   ├── release-please.yml (automated releases + clawhub publish)
+│   └── dependabot-auto-merge.yml
+├── .release-please-config.json (defines release packages)
+├── .release-please-manifest.json (current versions: google-workspace 0.5.0, zoho-mail 0.3.0)
+└── CLAUDE.md (development guidance)
+```
+
+### Key Insights for Creating an npm Package Skill
+
+1. **Build Pipeline**: Currently only handles Go via GoReleaser. An npm skill would need:
+   - A separate build step (likely esbuild, rollup, or tsc)
+   - Binary output (Node.js runtime bundled)
+   - Modified CI workflow to detect npm skill changes
+
+2. **Release Configuration**: The `.release-please-config.json` would need a new entry with `"release-type": "node"` instead of `"release-type": "go"`
+
+3. **Package Publishing**: The release workflow uses `npx clawhub@latest publish` for both Go and npm skills, so that part is compatible
+
+4. **Publishing to clawhub**: Uses npm/npx for invoking the clawhub CLI tool, but this is just orchestration (not a dependency of the skills themselves)
+
+5. **Go Version**: Current skills require Go 1.26.1 (see google-workspace/go.mod)
+
+All absolute file paths relevant to this task:
+- `/home/listellm/repos/panthrocorp/openclaw-skills/.release-please-config.json`
+- `/home/listellm/repos/panthrocorp/openclaw-skills/.release-please-manifest.json`
+- `/home/listellm/repos/panthrocorp/openclaw-skills/.github/workflows/release-please.yml`
+- `/home/listellm/repos/panthrocorp/openclaw-skills/.github/workflows/ci.yml`
+- `/home/listellm/repos/panthrocorp/openclaw-skills/CLAUDE.md`
+- `/home/listellm/repos/panthrocorp/openclaw-skills/google-workspace/go.mod`
+- `/home/listellm/repos/panthrocorp/openclaw-skills/google-workspace/.goreleaser.yml`</result>
+<usage><total_tokens>118971</total_tokens><tool_uses>50</tool_uses><duration_ms>58249</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a33f1f2238da52531</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/tmp/claude-1000/-home-listellm-repos-panthrocorp-openclaw-skills/705d5f7a-c4e0-4188-9214-cf99762ee2e5/tasks/a33f1f2238da52531.output</output-file>
+<status>completed</status>
+<summary>Agent "Explore existing skill structure" completed</summary>
+<result>Excellent! Now I have all the information needed. Let me create a comprehensive summary:
+
+## Repository Structure and Configuration - Complete Analysis
+
+I've thoroughly explored the openclaw-skills repository. Here's the complete breakdown of everything you requested:
+
+### 1. GOOGLE-WORKSPACE SKILL STRUCTURE
+
+**Directory Layout:**
+```
+google-workspace/
+├── cmd/
+│   ├── auth.go          # OAuth login, status check
+│   ├── calendar.go      # Calendar CRUD operations (configurable mode)
+│   ├── config.go        # Config show/set commands
+│   ├── contacts.go      # Read-only contacts operations
+│   ├── docs.go          # Docs read/edit operations (configurable mode)
+│   ├── drive.go         # Drive list/get/download/comments (configurable mode)
+│   ├── gmail.go         # Gmail search/read/labels/threads (read-only)
+│   ├── root.go          # Root command setup
+│   └── sheets.go        # Sheets read/write (configurable mode)
+├── internal/
+│   ├── config/
+│   │   ├── config.go    # JSON config model with ServiceMode type (off/readonly/readwrite)
+│   │   └── config_test.go
+│   ├── crypto/
+│   │   ├── encrypt.go   # AES-256-GCM with HKDF-SHA256
+│   │   └── encrypt_test.go
+│   ├── google/
+│   │   ├── calendar.go  # Google Calendar API wrapper
+│   │   ├── contacts.go  # Google Contacts API wrapper (read-only)
+│   │   ├── docs.go      # Google Docs API wrapper
+│   │   ├── drive.go     # Google Drive API wrapper
+│   │   ├── gmail.go     # Gmail API wrapper (read-only)
+│   │   └── sheets.go    # Google Sheets API wrapper
+│   └── oauth/
+│       ├── oauth.go     # OAuth2 Desktop flow (localhost redirect)
+│       └── token.go     # Token encryption/decryption
+├── SKILL.md             # Clawhub manifest (YAML frontmatter + instructions)
+├── CLAUDE.md            # Skill-specific architecture documentation
+├── README.md            # Deployment and usage guide
+├── main.go              # Entrypoint
+├── go.mod / go.sum      # Go module
+├── LICENSE              # MIT-0
+├── CHANGELOG.md         # Auto-generated by release-please
+└── .goreleaser.yml      # Cross-compilation config (see below)
+```
+
+**SKILL.md Format (Full Contents):**
+```yaml
+---
+name: Google Workspace
+description: Gmail, Contacts, Calendar, Drive (with comments), Docs, and Sheets for OpenClaw agents
+version: 0.4.2
+author: panthrocorp
+license: MIT-0
+metadata:
+  openclaw:
+    requires:
+      env:
+        - GOOGLE_WORKSPACE_TOKEN_KEY
+        - GOOGLE_CLIENT_ID
+        - GOOGLE_CLIENT_SECRET
+      bins:
+        - google-workspace
+    emoji: "📧"
+    homepage: https://github.com/PanthroCorp-Limited/openclaw-skills
+    os: ["linux"]
+---
+[Markdown instructions follow...]
+```
+
+**Internal Architecture:**
+- `cmd/` uses Cobra for CLI subcommands with helper functions (`gmailClient()`, `calendarClient()`, etc.) that handle config loading, token decryption, and API client creation inline
+- `internal/config/config.go` defines a JSON config model with `ServiceMode` type (used for Calendar, Drive, Docs, Sheets: `off`/`readonly`/`readwrite`). Gmail and Contacts are simple booleans. `Config.OAuthScopes()` derives OAuth scope list from current config
+- `internal/oauth/` handles OAuth2 Desktop flow (localhost redirect). **Key difference:** `InteractiveLogin` expects only the `code` value (the part after `code=` in the redirect URL), not the full URL
+- `internal/google/` contains thin typed wrappers. Write methods on Calendar, Drive, Docs, Sheets check `mode != ModeReadWrite` at runtime. Gmail and Contacts wrappers have no write methods at all
+- `internal/crypto/` implements AES-256-GCM with HKDF-SHA256. Wire format: `salt (16B) || nonce (12B) || ciphertext+tag`
+
+**Three-Layer Scope Enforcement:**
+1. Code: Gmail/Contacts wrappers lack write methods. Other services guard writes on `config.ModeReadWrite`
+2. Config: CLI commands check mode before calling client. Readonly config never requests write scopes
+3. GCP: Only required APIs enabled (Gmail, Calendar, People, Drive, Docs, Sheets)
+
+---
+
+### 2. RELEASE-PLEASE CONFIGURATION
+
+**`.release-please-config.json`:**
+```json
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "packages": {
+    "google-workspace": {
+      "release-type": "go",
+      "component": "google-workspace",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "yaml",
+          "path": "SKILL.md",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
+    "zoho-mail": {
+      "release-type": "go",
+      "component": "zoho-mail",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "yaml",
+          "path": "SKILL.md",
+          "jsonpath": "$.version"
+        }
+      ]
+    }
+  },
+  "initial-version": "0.1.0",
+  "include-component-in-tag": true,
+  "tag-separator": "/",
+  "separate-pull-requests": true
+}
+```
+
+**`.release-please-manifest.json`:**
+```json
+{
+  "google-workspace": "0.5.0",
+  "zoho-mail": "0.3.0"
+}
+```
+
+**Key Points:**
+- Release-please updates the `version` field in SKILL.md using a `type: yaml` updater with `jsonpath: $.version`
+- Tags are scoped per skill: `google-workspace/v0.5.0`, not `v0.5.0`
+- `separate-pull-requests: true` means one PR per skill
+- The clawhub publish step passes `--version` explicitly from the release tag rather than relying on clawhub's YAML parser
+
+---
+
+### 3. GITHUB ACTIONS WORKFLOWS
+
+**`.github/workflows/ci.yml`:**
+- Triggers on pull_request
+- Detects changes to `google-workspace/` or `.github/workflows/ci.yml` using git diff
+- Runs `go mod verify`, `go vet ./...`, `go test -race -count=1 ./...`, and CGO_ENABLED=0 build
+- Has a "gate" job that checks the build result (required for branch protection)
+- Skips if no skill changes detected
+
+**`.github/workflows/release-please.yml`:**
+- Triggers on push to main
+- Uses `googleapis/release-please-action@v4`
+- Outputs version tags like `google-workspace/v0.5.0`
+- Two separate publish jobs (one for each skill):
+  - `publish-google-workspace`: Runs only if `gw_release_created == 'true'`
+  - `publish-zoho-mail`: Runs only if `zm_release_created == 'true'`
+- Each publish job:
+  1. Checks out the specific tag
+  2. Creates a local version tag (strips skill prefix: `google-workspace/v0.5.0` → `v0.5.0`)
+  3. Runs tests
+  4. Runs GoReleaser (which produces `dist/*.tar.gz` and `checksums.txt`)
+  5. Uploads assets to GitHub release
+  6. Publishes to clawhub: `npx clawhub@latest publish . --slug panthrocorp-google-workspace --version &lt;SEMVER&gt;`
+
+**`.github/workflows/release-please-auto-merge.yml`:**
+- Triggers on pull_request
+- Checks if `github.actor == 'release-please[bot]'`
+- Auto-approves and auto-merges (squash) the release PR
+- Note: Runs because release-please[bot] is a built-in bot (unlike Dependabot)
+
+**`.github/workflows/dependabot-auto-merge.yml`:**
+- Triggers on pull_request
+- Checks if `github.actor == 'dependabot[bot]'`
+- Auto-approves and auto-merges (squash) dependency updates
+
+---
+
+### 4. DEPENDABOT CONFIGURATION
+
+**`.github/dependabot.yml`:**
+```yaml
+version: 2
+
+updates:
+  - package-ecosystem: gomod
+    directory: /google-workspace
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "fix"
+    labels:
+      - dependencies
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: gomod
+    directory: /zoho-mail
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "fix"
+    labels:
+      - dependencies
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "fix"
+    labels:
+      - dependencies
+    open-pull-requests-limit: 5
+```
+
+**Points:**
+- Separate gomod entries for each skill directory
+- Checks for GitHub Actions updates at root
+- All PRs use `fix:` prefix in commit messages
+- All PRs labeled `dependencies`
+- Max 5 open PRs per ecosystem
+
+---
+
+### 5. GORELEASER CONFIGURATION (`.goreleaser.yml` inside google-workspace/)
+
+```yaml
+version: 2
+
+project_name: google-workspace
+
+builds:
+  - id: google-workspace
+    main: .
+    binary: google-workspace
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+      - -X main.version={{ .Version }}
+
+archives:
+  - id: google-workspace
+    format: tar.gz
+    name_template: "google-workspace_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+
+checksum:
+  name_template: "checksums.txt"
+
+release:
+  disable: true
+
+changelog:
+  disable: true
+```
+
+**Notes:**
+- Builds for linux/amd64, linux/arm64, darwin/amd64, darwin/arm64
+- Disables both release and changelog (handled by release-please)
+- Archives as `.tar.gz` with format `google-workspace_&lt;version&gt;_&lt;os&gt;_&lt;arch&gt;.tar.gz`
+- Injects version via ldflags: `-X main.version={{ .Version }}`
+- CGO disabled for static binaries
+
+---
+
+### 6. ROOT CLAUDE.md
+
+The root `/home/listellm/repos/panthrocorp/openclaw-skills/CLAUDE.md` (5380 bytes) covers:
+
+**Project Overview:**
+- Repository contains custom OpenClaw skills published to clawhub under `panthrocorp` author
+- Each skill in its own subdirectory with independent Go module, build pipeline, and SKILL.md manifest
+
+**Repository Structure:**
+```
+&lt;skill-name&gt;/
+  SKILL.md              # clawhub manifest (YAML frontmatter + agent instructions)
+  LICENSE               # MIT-0 (clawhub requirement)
+  go.mod / go.sum       # Go module
+  main.go               # entrypoint
+  cmd/                  # Cobra CLI commands
+  internal/             # internal packages
+  .goreleaser.yml       # cross-compilation config
+```
+
+**Build and Test:**
+- From skill directory: `go build -o &lt;skill-name&gt; .` and `go test ./...`
+- Cross-compile for Graviton ARM: `GOOS=linux GOARCH=arm64 CGO_ENABLED=0 go build -o &lt;skill-name&gt; .`
+
+**Architecture:**
+- `cmd/` uses Cobra for CLI subcommands with inline helper functions for config loading and client creation
+- `internal/config/` holds JSON config model with unified `ServiceMode` type (`off`/`readonly`/`readwrite`)
+- `internal/oauth/` handles OAuth2 Desktop flow with encrypted token storage (AES-256-GCM)
+- `internal/crypto/` implements AES-256-GCM with HKDF-SHA256 key derivation
+- `internal/google/` contains thin typed API wrappers exposing only permitted operations
+
+**Security Principles:**
+- Read-only operations are default. Write operations are opt-in via config
+- OAuth tokens encrypted at rest (AES-256-GCM). No unencrypted fallback
+- OAuth scopes hardcoded per service. No runtime scope escalation paths
+- Google Cloud projects enable only required APIs
+- Every skill must pass clawhub moderation and VirusTotal scanning
+
+**Publishing:**
+- Automated via release-please. On merge to `main`, release-please opens/updates release PR per skill
+- Tags scoped per skill: `google-workspace/v0.1.0`
+- GoReleaser config lives in each skill directory
+- Configuration in `.release-please-config.json` and `.release-please-manifest.json`
+- Release-please updates `version` field in SKILL.md via `type: yaml` updater with `jsonpath: $.version`
+- Release-please PRs must be merged manually (GitHub Actions on bot PRs don't trigger auto-merge workflow)
+
+**Adding New Skill:**
+1. Create directory with `go.mod`, `main.go`, `cmd/`, `internal/`
+2. Add `SKILL.md` with YAML frontmatter
+3. Add `.goreleaser.yml` for cross-compilation
+4. Include MIT-0 `LICENSE`
+5. Add `gomod` entry in `.github/dependabot.yml`
+6. Add skill to `.release-please-config.json` and `.release-please-manifest.json`
+
+**Git Conventions:**
+- Never commit directly to main. Use feature branches and PRs
+- Commit messages: `fix:`, `feat:`, or `breaking:` prefix
+- Subject line under 50 characters, body uses bullet points
+- Branch protection requires `gate` CI check pass and signed commits
+- Dependabot PRs auto-approved and squash-merged
+
+---
+
+### 7. ROOT DIRECTORY FILES
+
+**`README.md`:**
+- Describes repository as custom skills for OpenClaw published to clawhub
+- Lists two skills: google-workspace (Gmail, Calendar, Contacts, Drive, Docs, Sheets) and zoho-mail (full read/write Zoho Mail)
+- Installation via `clawhub install panthrocorp-google-workspace` or `clawhub install panthrocorp-zoho-mail`
+- Security section emphasizes: encrypted tokens (AES-256-GCM), read-only defaults, opt-in writes, scoped APIs
+
+**`CONTRIBUTING.md`:**
+- Fork, create feature branch (feat/ or fix/ prefix)
+- Install pre-commit hooks: `pre-commit install &amp;&amp; pre-commit install --hook-type pre-push`
+- Run checks: `go vet ./...`, `go test ./...`, `golangci-lint run`
+- Commit convention: `fix:`, `feat:`, `breaking:` prefix, subject under 50 chars
+- All PRs target main, require approval, squash-merged, focused on one logical change
+- Adding new skill requires SKILL.md with frontmatter, LICENSE (MIT-0), `.goreleaser.yml`, tests
+
+**`SECURITY.md`:**
+- Report vulnerabilities via GitHub Security tab (not public issues)
+- Aims for 48-hour acknowledgment, 7-day fix for critical, 30 days for non-critical
+- Scope covers all skills
+- Design principles: read-only default, encrypted tokens (AES-256-GCM with HKDF-SHA256), hardcoded scopes, scoped APIs, clawhub/VirusTotal scanning
+- Only latest version of each skill receives security updates
+
+**`LICENSE`:**
+- MIT No Attribution (MIT-0)
+- Copyright 2026 PanthroCorp
+
+---
+
+### 8. SUPPORTING CONFIGURATION FILES
+
+**`.pre-commit-config.yaml`:**
+- Includes pre-commit hooks, yamllint, detect-secrets, gitleaks
+- Local hooks for: no direct push to main, `gofmt -l -w`, `golangci-lint run` per skill
+- Yamllint uses custom config at `./.config/.yamllint.yaml`
+
+**`.config/.yamllint.yaml`:**
+- Extends default yamllint config
+- Max line length 120 (allows non-breakable words)
+- Indentation: 2 spaces, indent-sequences true
+- Disables document-start, document-end, comments-indentation
+
+**`.gitignore`:**
+- Standard Go ignores (*.exe, *.dll, *.so, *.dylib, *.test, *.out, coverage files)
+- Go workspace (`go.work`, `go.work.sum`)
+- Environment: `.env`, `.env.*`
+- IDE: `.idea/`, vim swap files
+- OS: `.DS_Store`, `Thumbs.db`
+- Claude: `.claude`, `.playwright-*`
+
+**`.gitleaks.toml`:**
+- Uses default Gitleaks rules extended
+- Allowlist paths: `.config/.secrets.baseline`
+
+---
+
+### KEY PATTERNS AND CONVENTIONS
+
+1. **SKILL.md Format:** YAML frontmatter (name, description, version, author, license, metadata.openclaw with required env/bins) followed by Markdown instructions
+
+2. **Version Management:** Release-please updates SKILL.md version via `type: yaml` updater. Clawhub publish explicitly passes `--version` from release tag
+
+3. **Tag Format:** Scoped per skill with separator: `google-workspace/v0.5.0`
+
+4. **OAuth Flow:** Two approaches:
+   - google-workspace: Asks for code value only (from `code=` parameter)
+   - zoho-mail: Asks for full redirect URL
+
+5. **Config Model:** ServiceMode (off/readonly/readwrite) for multi-mode services. Simple booleans for read-only services
+
+6. **Encryption:** AES-256-GCM with HKDF-SHA256, salt+nonce+ciphertext+tag wire format
+
+7. **Scope Enforcement:** Three layers (code, config, GCP API enablement)
+
+8. **CI/CD:** PR triggers CI gate, push to main triggers release-please, release actions trigger GoReleaser + clawhub publish
+
+---
+
+All configuration files have been read in their entirety and are accurate as of the current repository state.</result>
+<usage><total_tokens>132092</total_tokens><tool_uses>51</tool_uses><duration_ms>196606</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a7c3d06a4415579d3</task-id>
+<tool-use-id>toolu_01TirPJaoN6JpyBtDiowE3HQ</tool-use-id>
+<output-file>/tmp/claude-1000/-home-listellm-repos-panthrocorp-openclaw-skills/705d5f7a-c4e0-4188-9214-cf99762ee2e5/tasks/a7c3d06a4415579d3.output</output-file>
+<status>completed</status>
+<summary>Agent "Design aws-s3 npm skill plan" completed</summary>
+<result>Here is the complete implementation plan for the `aws-s3` skill.
+
+---
+
+## Implementation Plan: aws-s3 Skill (PAN-53)
+
+### 1. Package Name Decision
+
+Use **`aws-s3`** as the skill directory and component name. This follows the existing pattern of hyphenated, service-oriented names (`google-workspace`, `zoho-mail`). It will be published to clawhub as `panthrocorp-aws-s3`. The npm package name in `package.json` should be `@panthrocorp/aws-s3` -- this is what consumers will `require()`.
+
+### 2. Directory Structure
+
+```
+aws-s3/
+  package.json          # npm package manifest (name, version, main, scripts, devDependencies)
+  src/
+    index.mjs           # Source entry point: re-exports from @aws-sdk/client-s3
+  esbuild.config.mjs    # esbuild bundler configuration
+  dist/                  # (gitignored) build output
+    index.cjs            # Bundled CommonJS output
+  test/
+    exports.test.mjs     # Verifies expected symbols are exported from the bundle
+  SKILL.md              # clawhub manifest
+  CHANGELOG.md          # release-please managed
+  LICENSE               # MIT-0 (copy from repo root)
+  CLAUDE.md             # Agent context file
+  README.md             # Developer documentation
+  .npmignore            # Ensures only dist/ + package.json + SKILL.md + LICENSE ship in tarball
+```
+
+No `.goreleaser.yml` -- that is Go-specific. The build/release flow uses `npm run build` and `npm pack` instead.
+
+### 3. package.json
+
+```json
+{
+  "name": "@panthrocorp/aws-s3",
+  "version": "0.1.0",
+  "description": "Self-contained AWS S3 SDK bundle for OpenClaw agents",
+  "main": "dist/index.cjs",
+  "exports": {
+    ".": {
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist/",
+    "SKILL.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "node esbuild.config.mjs",
+    "test": "node --test test/exports.test.mjs",
+    "prepack": "npm run build"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-s3": "^3.750.0",
+    "esbuild": "^0.25.0"
+  },
+  "license": "MIT-0",
+  "author": "panthrocorp",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PanthroCorp-Limited/openclaw-skills",
+    "directory": "aws-s3"
+  }
+}
+```
+
+Key decisions:
+- `@aws-sdk/client-s3` is a **devDependency** because it gets bundled into `dist/index.cjs` at build time. The published tarball has zero runtime dependencies.
+- `main` points to `dist/index.cjs` (CommonJS) because the gateway container uses `require()`.
+- The `files` array controls what `npm pack` includes. No `.npmignore` needed if `files` is specified (they are mutually exclusive; `files` is a whitelist and is cleaner).
+- `node --test` is the built-in Node.js test runner (available since Node 18), avoiding a test framework dependency.
+
+### 4. esbuild Configuration (esbuild.config.mjs)
+
+```js
+import { build } from "esbuild";
+
+await build({
+  entryPoints: ["src/index.mjs"],
+  bundle: true,
+  platform: "node",
+  target: "node18",
+  format: "cjs",
+  outfile: "dist/index.cjs",
+  minify: false,        // Keep readable for debugging in gateway
+  sourcemap: false,     // Not needed for SDK re-export
+  legalComments: "eof", // Preserve license comments at end of file
+});
+```
+
+Key decisions:
+- `platform: "node"` tells esbuild to treat Node built-ins (`http`, `https`, `stream`, etc.) as external -- they are not bundled. This is critical because the AWS SDK uses them.
+- `format: "cjs"` because the gateway uses `require()`.
+- `target: "node18"` -- conservative minimum, matching typical container base images.
+- `minify: false` -- the bundle is not shipped to browsers; readability in the container aids debugging. The size difference is negligible for a server-side package.
+
+### 5. Source Entry Point (src/index.mjs)
+
+```js
+export {
+  S3Client,
+  ListObjectsV2Command,
+  GetObjectCommand,
+  PutObjectCommand,
+  DeleteObjectCommand,
+  HeadObjectCommand,
+  ListBucketsCommand,
+  CopyObjectCommand,
+  CreateMultipartUploadCommand,
+  UploadPartCommand,
+  CompleteMultipartUploadCommand,
+  AbortMultipartUploadCommand,
+  GetBucketLocationCommand,
+} from "@aws-sdk/client-s3";
+```
+
+This re-exports all commonly needed symbols. The Linear ticket calls out `S3Client`, `ListObjectsV2Command`, and `GetObjectCommand` as immediate requirements, but including the other common commands costs nothing (they are all in the same package) and avoids a breaking change when the next consumer needs `PutObjectCommand`.
+
+Alternatively, the simplest approach is a full barrel re-export:
+
+```js
+export * from "@aws-sdk/client-s3";
+```
+
+This is cleaner and future-proof, though the bundle will be slightly larger. Recommend the wildcard re-export for v1 since the size difference is minimal for a server-side package.
+
+### 6. SKILL.md
+
+```yaml
+---
+name: AWS S3
+description: Self-contained AWS S3 SDK bundle for OpenClaw agents
+version: 0.1.0
+author: panthrocorp
+license: MIT-0
+metadata:
+  openclaw:
+    requires:
+      npm:
+        - "@panthrocorp/aws-s3"
+    emoji: "\U0001FAA3"
+    homepage: https://github.com/PanthroCorp-Limited/openclaw-skills
+    os: ["linux"]
+---
+
+# AWS S3 Skill
+
+Pre-bundled AWS S3 SDK for use inside the OpenClaw gateway container. All transitive
+dependencies are bundled -- no internet access required at install time.
+
+## Installation
+
+Install from the release tarball into the gateway container:
+
+\```bash
+TAG=$(curl -fsSL "https://api.github.com/repos/PanthroCorp-Limited/openclaw-skills/releases" \
+  | grep -o '"tag_name":"aws-s3/v[^"]*"' | head -1 | cut -d'"' -f4)
+VERSION=${TAG#aws-s3/v}
+URL="https://github.com/PanthroCorp-Limited/openclaw-skills/releases/download/${TAG}/panthrocorp-aws-s3-${VERSION}.tgz"
+docker exec openclaw-gateway npm install "$URL" --prefix /home/node/.openclaw/bin/.npm-global
+\```
+
+Or from a downloaded tarball:
+
+\```bash
+docker exec openclaw-gateway npm install /path/to/panthrocorp-aws-s3-0.1.0.tgz --prefix /home/node/.openclaw/bin/.npm-global
+\```
+
+## Usage
+
+\```js
+const { S3Client, ListObjectsV2Command, GetObjectCommand } = require("@panthrocorp/aws-s3");
+
+const client = new S3Client({});  // uses default credential provider chain (IMDS)
+
+const list = await client.send(new ListObjectsV2Command({ Bucket: "my-bucket" }));
+const obj = await client.send(new GetObjectCommand({ Bucket: "my-bucket", Key: "file.txt" }));
+\```
+
+## Authentication
+
+Credentials are resolved via the AWS SDK default credential provider chain. In an EC2/ECS
+environment, this uses IMDS (Instance Metadata Service) automatically. No environment
+variables or credential files are required.
+
+## Important
+
+- This package bundles @aws-sdk/client-s3 with all transitive dependencies.
+- No network access is needed at install time.
+- The gateway container must have Node.js available.
+```
+
+Notable differences from the Go skills' SKILL.md:
+- `requires.npm` instead of `requires.bins` -- this is a new metadata key indicating the skill is an npm package rather than a binary.
+- No `requires.env` -- credentials come from IMDS, not environment variables.
+- The installation section uses `npm install` with a tarball URL instead of `tar -xz`.
+
+**Gotcha**: The `requires.npm` field is new and may not be recognized by existing clawhub/openclaw tooling. This should be validated with the clawhub team. If `requires.npm` is not supported, use a `requires.files` or similar field, or document the install command in the markdown body only and omit machine-readable npm metadata for now.
+
+### 7. Test Strategy (test/exports.test.mjs)
+
+```js
+import { describe, it } from "node:test";
+import { strict as assert } from "node:assert";
+
+describe("aws-s3 bundle exports", () =&gt; {
+  it("exports S3Client", async () =&gt; {
+    const mod = await import("../dist/index.cjs");
+    assert.equal(typeof mod.S3Client, "function");
+  });
+
+  it("exports ListObjectsV2Command", async () =&gt; {
+    const mod = await import("../dist/index.cjs");
+    assert.equal(typeof mod.ListObjectsV2Command, "function");
+  });
+
+  it("exports GetObjectCommand", async () =&gt; {
+    const mod = await import("../dist/index.cjs");
+    assert.equal(typeof mod.GetObjectCommand, "function");
+  });
+
+  it("S3Client can be instantiated", async () =&gt; {
+    const mod = await import("../dist/index.cjs");
+    // Should not throw -- does not make network calls until .send()
+    const client = new mod.S3Client({ region: "us-east-1" });
+    assert.ok(client);
+    client.destroy();
+  });
+});
+```
+
+Tests run against the **built** bundle (`dist/index.cjs`), not the source. This validates that esbuild produced a working artifact. The `npm test` script requires `npm run build` first; CI will run them sequentially.
+
+### 8. CI Changes (.github/workflows/ci.yml)
+
+Add a new job `build-npm` alongside the existing Go `build` job. Update `gate` to depend on both.
+
+New job to add:
+
+```yaml
+  build-npm:
+    name: Build &amp; Test (npm)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: aws-s3
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Check for skill changes
+        id: changes
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          PATTERN='^aws-s3/|^\.github/workflows/ci\.yml$'
+          if git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -qE "$PATTERN"; then
+            echo "skill_changed=true" &gt;&gt; "$GITHUB_OUTPUT"
+          else
+            echo "skill_changed=false" &gt;&gt; "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install dependencies
+        if: steps.changes.outputs.skill_changed == 'true'
+        run: npm ci
+
+      - name: Build
+        if: steps.changes.outputs.skill_changed == 'true'
+        run: npm run build
+
+      - name: Test
+        if: steps.changes.outputs.skill_changed == 'true'
+        run: npm test
+
+      - name: Pack (dry-run)
+        if: steps.changes.outputs.skill_changed == 'true'
+        run: npm pack --dry-run
+
+      - name: Skip (no skill changes)
+        if: steps.changes.outputs.skill_changed == 'false'
+        run: echo "No skill changes detected, skipping build and test"
+```
+
+Update the `gate` job:
+
+```yaml
+  gate:
+    name: gate
+    runs-on: ubuntu-latest
+    needs: [build, build-npm]
+    if: always()
+    steps:
+      - name: Check build result
+        run: |
+          for result in "${{ needs.build.result }}" "${{ needs.build-npm.result }}"; do
+            if [ "$result" = "failure" ] || [ "$result" = "cancelled" ]; then
+              echo "A build failed or was cancelled"
+              exit 1
+            fi
+          done
+          echo "All checks passed"
+```
+
+### 9. Release Pipeline Changes
+
+#### .release-please-config.json
+
+Add a new entry in `packages`:
+
+```json
+"aws-s3": {
+  "release-type": "node",
+  "component": "aws-s3",
+  "changelog-path": "CHANGELOG.md",
+  "extra-files": [
+    {
+      "type": "yaml",
+      "path": "SKILL.md",
+      "jsonpath": "$.version"
+    }
+  ]
+}
+```
+
+`release-type: "node"` tells release-please to read/bump the version from `package.json` (not a Go module). It will also update `package.json` version on release PRs and update `package-lock.json` if present.
+
+#### .release-please-manifest.json
+
+Add the initial version:
+
+```json
+{
+  "google-workspace": "0.5.0",
+  "zoho-mail": "0.3.0",
+  "aws-s3": "0.1.0"
+}
+```
+
+#### .github/workflows/release-please.yml
+
+Add outputs and a new publish job.
+
+New outputs in the `release-please` job:
+
+```yaml
+      s3_release_created: ${{ steps.release.outputs['aws-s3--release_created'] }}
+      s3_tag_name: ${{ steps.release.outputs['aws-s3--tag_name'] }}
+```
+
+New publish job:
+
+```yaml
+  publish-aws-s3:
+    name: Publish aws-s3
+    needs: release-please
+    if: needs.release-please.outputs.s3_release_created == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: aws-s3
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.release-please.outputs.s3_tag_name }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test before release
+        run: npm run build &amp;&amp; npm test
+
+      - name: Build and pack
+        id: pack
+        run: |
+          npm run build
+          TARBALL=$(npm pack --json | jq -r '.[0].filename')
+          echo "tarball=$TARBALL" &gt;&gt; "$GITHUB_OUTPUT"
+
+      - name: Upload tarball to GitHub release
+        run: |
+          TAG="${{ needs.release-please.outputs.s3_tag_name }}"
+          gh release upload "$TAG" "${{ steps.pack.outputs.tarball }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to clawhub
+        if: success()
+        run: |
+          TAG="${{ needs.release-please.outputs.s3_tag_name }}"
+          VERSION="${TAG#aws-s3/v}"
+          npx clawhub@latest login --token "$CLAWHUB_TOKEN"
+          npx clawhub@latest publish . --slug panthrocorp-aws-s3 --version "$VERSION"
+        env:
+          CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
+```
+
+Key differences from Go publish jobs:
+- No GoReleaser step. Replaced by `npm run build &amp;&amp; npm pack`.
+- No local version tag creation (Go skills need this because GoReleaser expects a simple `vX.Y.Z` tag). The release-please tag `aws-s3/v0.1.0` is sufficient.
+- The release artifact is a single `.tgz` tarball (output of `npm pack`) instead of multiple platform-specific `tar.gz` files.
+- `npm pack --json` returns structured JSON with the filename, making it easy to capture the tarball name.
+
+### 10. Dependabot Changes (.github/dependabot.yml)
+
+Add an npm ecosystem entry:
+
+```yaml
+  - package-ecosystem: npm
+    directory: /aws-s3
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "fix"
+    labels:
+      - dependencies
+    open-pull-requests-limit: 5
+```
+
+### 11. .gitignore
+
+Add an `aws-s3/.gitignore` or add to a root `.gitignore`:
+
+```
+aws-s3/node_modules/
+aws-s3/dist/
+```
+
+The `dist/` directory is a build artifact and should not be committed. It is regenerated by `npm run build` in CI and during `npm pack` (via the `prepack` script).
+
+### 12. CLAUDE.md for aws-s3
+
+```markdown
+# aws-s3
+
+## Overview
+
+Self-contained AWS S3 SDK bundle for OpenClaw agents. Unlike the Go-based skills,
+this is an npm package that bundles @aws-sdk/client-s3 with all transitive dependencies
+into a single CommonJS file.
+
+## Architecture
+
+- `src/index.mjs` -- barrel re-export of @aws-sdk/client-s3 symbols
+- `esbuild.config.mjs` -- bundles src/index.mjs into dist/index.cjs (CommonJS, Node 18+)
+- `dist/index.cjs` -- (built, gitignored) the complete bundled SDK
+- `test/exports.test.mjs` -- validates the bundle exports expected symbols
+
+## Build
+
+npm ci &amp;&amp; npm run build
+
+## Test
+
+npm test  (requires build first)
+
+## How it works
+
+The gateway container has Node.js but no internet and no @aws-sdk installed.
+This package bundles @aws-sdk/client-s3 and all its transitive dependencies
+into a single CJS file using esbuild. The tarball from `npm pack` is installed
+into the container via `npm install &lt;tarball&gt;`.
+
+## Credentials
+
+Uses the AWS SDK default credential provider chain. On EC2/ECS this resolves
+via IMDS automatically. No environment variables are required.
+```
+
+### 13. Gotchas and Edge Cases
+
+1. **`requires.npm` in SKILL.md is a new convention.** The existing skills use `requires.bins`. Confirm with the clawhub/openclaw team that `requires.npm` is a recognized field, or that unrecognized fields are ignored gracefully. If not supported, omit the machine-readable field and rely on the markdown install instructions.
+
+2. **esbuild and Node built-ins.** With `platform: "node"`, esbuild marks Node built-ins as external. This is correct. However, if `@aws-sdk/client-s3` has any optional native dependencies (it should not, but verify), those would fail to bundle. The AWS SDK v3 is pure JavaScript, so this should not be an issue.
+
+3. **Bundle size.** `@aws-sdk/client-s3` v3 is modular, but the full client with credential providers pulls in a significant dependency tree. Expect the bundle to be 1-3 MB. This is acceptable for a server-side package installed once into a container.
+
+4. **`npm pack` tarball naming.** The default name is `panthrocorp-aws-s3-0.1.0.tgz` (npm lowercases and replaces `@`/`/` with the org prefix pattern). The `npm pack --json` approach in the release workflow handles this dynamically.
+
+5. **`npm ci` requires `package-lock.json`.** The `aws-s3/` directory must commit a `package-lock.json`. Without it, `npm ci` fails. Generate it by running `npm install` during initial setup and commit it.
+
+6. **release-please `node` release-type.** This release type bumps `version` in `package.json` and `package-lock.json` automatically. The `extra-files` YAML updater for `SKILL.md` handles the manifest version separately. Both will be updated in the release PR.
+
+7. **No `prepack` in CI.** The `prepack` script in `package.json` runs `npm run build` before `npm pack`. In the release workflow, `npm run build` is called explicitly before `npm pack`, so the build runs twice. This is harmless (idempotent) but could be optimized by removing the explicit build call and relying on `prepack`. However, keeping the explicit call is clearer for CI readability.
+
+8. **Credential provider bundling.** The default credential provider chain (`@aws-sdk/credential-provider-node`) is pulled in transitively by `S3Client`. This includes IMDS, ECS container credentials, environment variables, and shared credentials file providers. All of these are pure JS and will bundle correctly. Verify after the first build that instantiating `new S3Client({})` does not throw import errors.
+
+9. **Container Node.js version.** The esbuild `target: "node18"` should match or be lower than the gateway container's Node version. If the gateway runs Node 20+, `node18` is safe. If it runs Node 16, adjust the target.
+
+10. **Renaming the existing Go `build` job.** For clarity, consider renaming it to `build-go` when adding `build-npm`. This is optional but improves readability. The `gate` job's `needs` array would change to `[build-go, build-npm]`.
+
+### 14. Implementation Sequence
+
+1. Create `aws-s3/` directory with `package.json`, `src/index.mjs`, `esbuild.config.mjs`, `test/exports.test.mjs`
+2. Run `npm install` to generate `package-lock.json`
+3. Run `npm run build` and `npm test` locally to validate
+4. Add `SKILL.md`, `CLAUDE.md`, `LICENSE`, `README.md`, `.gitignore`
+5. Update `.release-please-config.json` (add `aws-s3` package entry)
+6. Update `.release-please-manifest.json` (add `"aws-s3": "0.1.0"`)
+7. Update `.github/dependabot.yml` (add npm entry)
+8. Update `.github/workflows/ci.yml` (add `build-npm` job, update `gate`)
+9. Update `.github/workflows/release-please.yml` (add outputs + `publish-aws-s3` job)
+10. Update root `CLAUDE.md` to mention npm-based skills as a second pattern
+11. Open PR, verify CI passes (the `build-npm` job should detect changes and run)
+
+### Critical Files for Implementation
+- `/home/listellm/repos/panthrocorp/openclaw-skills/.release-please-config.json`
+- `/home/listellm/repos/panthrocorp/openclaw-skills/.github/workflows/ci.yml`
+- `/home/listellm/repos/panthrocorp/openclaw-skills/.github/workflows/release-please.yml`
+- `/home/listellm/repos/panthrocorp/openclaw-skills/.github/dependabot.yml`
+- `/home/listellm/repos/panthrocorp/openclaw-skills/google-workspace/SKILL.md` (reference for SKILL.md format)</result>
+<usage><total_tokens>30404</total_tokens><tool_uses>35</tool_uses><duration_ms>199435</duration_ms></usage>
+</task-notification>
+
+---
+
+yes run review agents
+
+---
+
+<task-notification>
+<task-id>ae222e5b66cc16756</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/tmp/claude-1000/-home-listellm-repos-panthrocorp-openclaw-skills/705d5f7a-c4e0-4188-9214-cf99762ee2e5/tasks/ae222e5b66cc16756.output</output-file>
+<status>completed</status>
+<summary>Agent "Peer review of aws-s3 skill" completed</summary>
+<result>
+
+Here is my review.
+
+## Must fix before merge
+
+**1. Build runs three times during publish.**
+
+The release job runs `npm ci` which triggers `prepack` (build), then presumably runs `npm test` (which needs the dist), then `npm pack` (which triggers `prepack` again). That is wasteful and fragile. Fix: run `npm run build` explicitly once, then test, then pack with `--ignore-scripts` or remove the `prepack` hook entirely and make the CI pipeline explicit.
+
+```json
+"prepack": "npm run build"
+```
+
+Drop this. The CI workflow should own the sequence: `npm ci &amp;&amp; npm run build &amp;&amp; npm test &amp;&amp; npm pack`. Relying on lifecycle hooks in CI leads to exactly this kind of redundant execution, and it masks failures.
+
+**2. `npm ci` does not trigger `prepack`; `npm pack` does, but `npm test` does not build for you.**
+
+The test imports `../dist/index.cjs` directly. If someone clones and runs `npm test` without building first, it fails silently with a missing file error. Either:
+- Add a `pretest` script: `"pretest": "npm run build"`, or
+- Document it clearly, or
+- Better: make the CI explicit as above and add a guard in the test that gives a clear error message.
+
+**3. Test runs against the built artefact only. There is no lint, no type checking, no static analysis.**
+
+For a Go skill you get `go vet` essentially for free. Here there is nothing catching issues in `src/index.mjs` or `esbuild.config.mjs` beyond "did it bundle". Consider adding at least an eslint config or `tsc --noEmit` with a jsconfig. Not a hard blocker, but worth calling out given the repo's existing quality bar.
+
+**4. The `@aws-sdk/client-s3` version pin `^3.750.0` is a semver range in devDependencies.**
+
+Since esbuild bundles everything into the dist, the actual shipped code depends on whatever version was resolved at build time. A lockfile (`package-lock.json`) must be committed and `npm ci` used in CI (which it sounds like it is). Confirm `package-lock.json` is committed and not in `.gitignore`. If it is missing, the build is not reproducible.
+
+**5. Repository URL mismatch.**
+
+```json
+"url": "https://github.com/PanthroCorp-Limited/openclaw-skills"
+```
+
+The actual repo (per git remote) is `panthrocorp/openclaw-skills`. This will show the wrong link on npm/clawhub.
+
+## Should fix
+
+**6. No `engines` field in package.json.**
+
+You target `node22` in esbuild. Add `"engines": { "node": "&gt;=22" }` so consumers get a clear error on older runtimes rather than cryptic failures from unsupported syntax.
+
+**7. Missing `PutObjectCommand` and `DeleteObjectCommand` in the export smoke test.**
+
+The SKILL.md presumably advertises write operations (or at least the SDK supports them). The test only checks three commands. If the bundle is the entire client-s3 re-export, test at least the write-path commands too, since those are the ones where a broken export actually matters (read-only is caught quickly; a broken write path surfaces at the worst time).
+
+**8. `sourcemap: false` and `minify: false` are the defaults.** Remove them. Less config to maintain.
+
+**9. `legalComments: "eof"` will append licence text from every transitive dependency to the bundle.** For `@aws-sdk/client-s3` that is a lot of packages. Check the bundle size. If it is adding significant weight, consider `legalComments: "external"` to write a separate `.LEGAL.txt` file, or `"linked"` to keep the bundle lean.
+
+## Looks good
+
+- The esbuild single-file CJS approach is right-sized. No webpack, no rollup, no unnecessary complexity. Good call.
+- `createRequire` in the ESM test to load the CJS bundle is the correct pattern.
+- Change detection in CI and the gate job update are consistent with existing Go patterns.
+- `release-type: "node"` in release-please config is correct; it will bump `package.json` version automatically.
+- `files` array in package.json correctly restricts what goes into the tarball.
+- MIT-0 licence matches clawhub requirements.
+- dependabot entry for the npm ecosystem is correct.
+
+## Questions
+
+- Is `package-lock.json` committed? I cannot see it in the file list. If not, that is a blocker for reproducible builds.
+- Does the `gate` job in CI handle the case where `build-npm` is skipped (no changes in `aws-s3/`)? The Go `build` job already handles this; confirm the for-loop logic treats `skipped` the same as `success`.
+- Does `clawhub publish` understand `requires.npm` already, or is that landing in a separate clawhub release? If the latter, this skill will fail moderation until that ships.</result>
+<usage><total_tokens>14507</total_tokens><tool_uses>0</tool_uses><duration_ms>54372</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>ae33890f51b5e7dec</task-id>
+<tool-use-id>toolu_01PQku6QydBeLRKDkyZeXFYK</tool-use-id>
+<output-file>/tmp/claude-1000/-home-listellm-repos-panthrocorp-openclaw-skills/705d5f7a-c4e0-4188-9214-cf99762ee2e5/tasks/ae33890f51b5e7dec.output</output-file>
+<status>completed</status>
+<summary>Agent "QA review of aws-s3 skill" completed</summary>
+<result>Good, I have everything I need. Here are the findings.
+
+---
+
+## QA Review: aws-s3 npm skill
+
+### CRITICAL
+
+**Triple build during release is wasteful but not a correctness bug**
+
+Actually, on closer inspection, this is worth flagging precisely: the "Build and pack" step calls `npm run build` explicitly, and `npm pack` then triggers `prepack` which calls `npm run build` a third time. Because esbuild is deterministic this produces identical output each time, but the second build (from `prepack`) overwrites the same `dist/index.cjs` that the explicit `npm run build` just wrote. This is not a correctness issue but it is ~20-30s of wasted CI time on every release and signals unclear intent. The fix is to either remove the explicit `npm run build` call from the "Build and pack" step and rely on `prepack`, or remove `prepack` entirely and keep the explicit calls. Mixing both is confusing.
+
+---
+
+### HIGH
+
+**`dist/` is committed to the repository**
+
+The `.gitignore` lists `dist/` as ignored, but `dist/index.cjs` (1.34 MB) is present on disk and would be included in a commit unless the file was added before `.gitignore` was set. If this is already tracked in git, the `.gitignore` entry has no effect and the built artefact is in version control. This creates two problems: PRs will include diff noise on every SDK bump, and the file in git may not match what `npm run build` currently produces (stale artefact risk). Verify with `git ls-files aws-s3/dist/` and untrack if present.
+
+**Release workflow checks out without `fetch-depth: 0`**
+
+The `publish-google-workspace` and `publish-zoho-mail` jobs both specify `fetch-depth: 0`. The `publish-aws-s3` job does not. This is inconsistent. For npm this matters less than for Go (GoReleaser needs full history for changelog generation), but if clawhub or any step needs to walk the tag history, it will silently operate on a shallow clone. Align with the other publish jobs for consistency and safety.
+
+**`npm pack --json` tarball name assumption in SKILL.md install snippet**
+
+The SKILL.md installation snippet hard-codes the tarball name as `openclaw-aws-s3-${VERSION}.tgz`. npm's actual tarball naming for a scoped package (`@openclaw/aws-s3`) produces `openclaw-aws-s3-0.1.0.tgz` (scope stripped, hyphens). This matches, but this is an implementation detail of npm's naming behaviour that could silently break if the package name ever changes. The release workflow correctly captures the filename via `npm pack --json | jq -r '.[0].filename'`. The SKILL.md snippet should ideally derive the name the same way rather than constructing it by convention. Minor, but documentation drift here would break user installs.
+
+---
+
+### MEDIUM
+
+**Test coverage is surface-level symbol presence only**
+
+The four tests confirm that three named exports exist and that `S3Client` instantiates without throwing. There is no test that:
+- the `exports` map resolves correctly (i.e. `import("@openclaw/aws-s3")` path, not just `require("../dist/index.cjs")` by relative path)
+- the bundle does not accidentally expose `undefined` for any of the ~200 other command classes
+- `PutObjectCommand` or `DeleteObjectCommand` are present (the SKILL.md usage example does not require them but they are the most commonly needed S3 operations alongside the tested ones)
+- the bundle handles a missing or inaccessible `dist/index.cjs` with a useful error rather than a cryptic `Cannot find module`
+
+For a bundled re-export this is low-risk in practice, but a spot-check of 3 out of ~200 exports is thin. Add at least `PutObjectCommand` and one of the presigned URL utilities if those are in scope.
+
+**No checksum verification on the uploaded tarball**
+
+The Go publish jobs upload both `dist/*.tar.gz` and `dist/checksums.txt`. The `publish-aws-s3` job uploads only the tarball with no checksum file. Users downloading from the GitHub release have no way to verify integrity without manually computing the hash. Add a step to generate and upload a `sha256sum` file alongside the tarball.
+
+**`@aws-sdk/client-s3` is in `devDependencies`**
+
+This is intentional for a bundled package (the SDK is compiled in, not a runtime dependency). However, Dependabot will treat it as a dev dependency and may deprioritise or handle version bumps differently. More importantly, if someone clones the repo and looks at `package.json`, the placement in `devDependencies` correctly signals "not needed at runtime" but may confuse contributors who do not read the CLAUDE.md. A comment in the README or package description clarifying this would prevent incorrect refactoring.
+
+---
+
+### LOW
+
+**Change detection pattern for `ci.yml` is duplicated**
+
+Both the `build` and `build-npm` jobs independently check for changes to `^\.github/workflows/ci\.yml$`. This means any change to `ci.yml` triggers both jobs, which is correct. However, if a second workflow file (e.g. `release-please.yml`) is modified without touching skill files, neither job triggers. This is probably fine for the current structure but worth noting as the repo grows.
+
+**`gate` job accepts `skipped` as a passing state**
+
+The gate loop checks only for `failure` or `cancelled`. A `skipped` result (which would occur if `build-npm` was removed or its `if:` condition failed at the job level) passes the gate silently. This matches the existing Go `build` job behaviour and is an accepted pattern here, but it means a misconfigured `if:` on a job will not block merges. Not a new risk introduced by this PR, but worth being aware of.
+
+**Bundle size: 1.34 MB unminified**
+
+The esbuild config sets `minify: false`. The AWS SDK is large but 1.34 MB unminified will be meaningfully larger than with minification enabled. For a gateway container that installs this once and caches it this is not a serious concern, but `minify: true` would reduce it significantly (likely 40-60%) with no functional change. Consider enabling it unless readable source in the container is explicitly needed for debugging.
+
+**No `engines` field in `package.json`**
+
+The esbuild target is `node22` but there is no `"engines": { "node": "&gt;=22" }` in `package.json`. A container running Node 18 or 20 would attempt to install and run the bundle without any upfront warning, and may encounter subtle incompatibilities if the output uses Node 22 APIs. Add the `engines` constraint.
+
+---
+
+### Summary table
+
+| Severity | Issue | Action |
+|----------|-------|--------|
+| High | `dist/` likely tracked in git | Verify with `git ls-files aws-s3/dist/` and untrack |
+| High | Release checkout missing `fetch-depth: 0` | Add to `publish-aws-s3` checkout step |
+| High | Triple build during release | Remove redundant `npm run build` from "Build and pack" step |
+| Medium | Tests check 3 of ~200 exports | Add `PutObjectCommand` and presigned URL spot-checks |
+| Medium | No checksum file on release upload | Generate and upload `sha256sum` alongside tarball |
+| Medium | `@aws-sdk` in devDependencies without inline explanation | Document intent in package.json `description` or README |
+| Low | Bundle unminified at 1.34 MB | Enable `minify: true` in esbuild config |
+| Low | No `engines` field | Add `"engines": { "node": "&gt;=22" }` to package.json |
+| Low | Gate passes `skipped` silently | Accepted pattern, no change needed |</result>
+<usage><total_tokens>27113</total_tokens><tool_uses>32</tool_uses><duration_ms>105478</duration_ms></usage>
+</task-notification>
