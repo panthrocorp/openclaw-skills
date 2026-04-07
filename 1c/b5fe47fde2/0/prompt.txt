@@ -1,0 +1,803 @@
+continue
+
+---
+
+is everything you have learnt documented in the claude.md and repo readme.md?
+
+---
+
+read https://github.com/PanthroCorp-Limited/openclaw-skills/issues/40 and plan how to implement
+
+---
+
+<task-notification>
+<task-id>a0862f738f7e0113a</task-id>
+<tool-use-id>toolu_01LEbAqLrY7G3EULZMZkso5G</tool-use-id>
+<output-file>/tmp/claude-1000/-home-listellm-repos-panthrocorp-openclaw-skills/55eb9a3f-3ff5-411d-a34a-cce744c87d28/tasks/a0862f738f7e0113a.output</output-file>
+<status>completed</status>
+<summary>Agent "Check Google API scope requirements" completed</summary>
+<result>Perfect! Now I have comprehensive information. Let me compile my findings:
+
+## Complete OAuth Scope Requirements Report
+
+### 1. Google Docs API Scopes
+
+**Yes, there is a `documents.readonly` scope.**
+
+| Operation | Scope URL | Scope Name |
+|-----------|-----------|-----------|
+| **Read-only access** | `https://www.googleapis.com/auth/documents.readonly` | See all Google Docs documents |
+| **Read & Write access** | `https://www.googleapis.com/auth/documents` | See, edit, create, and delete all Google Docs documents |
+| **Per-file access** (Recommended) | `https://www.googleapis.com/auth/drive.file` | See, edit, create, and delete only the specific Google Drive files you use with this app |
+
+**Important Note on Comments:** The official documentation does not list a dedicated scope specifically for adding comments to Docs. Comments operations fall under the general document access scopes above. The full `documents` scope is required for adding/editing comments.
+
+Sources:
+- [Choose Google Docs API scopes](https://developers.google.com/workspace/docs/api/auth)
+- [OAuth 2.0 Scopes for Google APIs](https://developers.google.com/identity/protocols/oauth2/scopes)
+
+---
+
+### 2. Google Sheets API Scopes
+
+**Yes, there is a `spreadsheets.readonly` scope.**
+
+| Operation | Scope URL | Scope Name |
+|-----------|-----------|-----------|
+| **Read-only access** | `https://www.googleapis.com/auth/spreadsheets.readonly` | See all your Google Sheets spreadsheets (Sensitive) |
+| **Read & Write access** | `https://www.googleapis.com/auth/spreadsheets` | See, edit, create, and delete all your Google Sheets spreadsheets (Sensitive) |
+| **Per-file access** (Recommended) | `https://www.googleapis.com/auth/drive.file` | See, edit, create, and delete only the specific Google Drive files you use with this app (Non-sensitive) |
+
+**Best Practice:** Google recommends using `drive.file` as a non-sensitive, per-file scope alternative to minimize user friction during authorization.
+
+Sources:
+- [Choose Google Sheets API scopes](https://developers.google.com/workspace/sheets/api/scopes)
+
+---
+
+### 3. Google Drive Comments Scopes
+
+**For Reading Comments (list/get):**
+
+All of these scopes work for reading comments:
+- `https://www.googleapis.com/auth/drive` (Full access)
+- `https://www.googleapis.com/auth/drive.file` (Per-file access)
+- `https://www.googleapis.com/auth/drive.readonly` (Read-only)
+- `https://www.googleapis.com/auth/drive.meet.readonly` (Meet-specific read-only)
+- `https://www.googleapis.com/auth/docs` (For Docs comments)
+
+**Yes, `drive.readonly` works for reading comments.**
+
+**For Writing/Creating Comments (create, reply):**
+
+Only these two scopes work:
+- `https://www.googleapis.com/auth/drive` (Full access - required)
+- `https://www.googleapis.com/auth/drive.file` (Per-file access)
+
+**Important:** `drive.readonly` does **NOT** work for creating/modifying comments. You need write access.
+
+**Critical Note on `drive.readonly`:** Google has restricted this scope and requires extensive verification (CASA Tier 2/3 security assessments) for apps using it. Google recommends using `drive.file` instead for better privacy and to avoid verification requirements.
+
+Sources:
+- [Method: comments.get](https://developers.google.com/drive/api/v2/reference/comments/get)
+- [Method: comments.list](https://developers.google.com/workspace/drive/api/reference/rest/v3/comments/list)
+- [Method: comments.create](https://developers.google.com/workspace/drive/api/reference/rest/v3/comments/create)
+- [Manage comments and replies](https://developers.google.com/workspace/drive/api/guides/manage-comments)
+- [Choose Google Drive API scopes](https://developers.google.com/workspace/drive/api/guides/api-specific-auth)
+
+---
+
+### 4. Go Import Paths
+
+| Package | Import Path |
+|---------|-------------|
+| **Google Docs** | `google.golang.org/api/docs/v1` |
+| **Google Sheets** | `google.golang.org/api/sheets/v4` |
+| **Google Drive v3** | `google.golang.org/api/drive/v3` |
+| **Google Drive v2** (legacy) | `google.golang.org/api/drive/v2` |
+
+**Usage Example:**
+```go
+import (
+    "google.golang.org/api/docs/v1"
+    "google.golang.org/api/sheets/v4"
+    "google.golang.org/api/drive/v3"
+)
+```
+
+Sources:
+- [sheets package - google.golang.org/api/sheets/v4](https://pkg.go.dev/google.golang.org/api/sheets/v4)
+- [docs package - google.golang.org/api/docs/v1](https://pkg.go.dev/google.golang.org/api/docs/v1)
+- [drive package - google.golang.org/api/drive/v3](https://pkg.go.dev/google.golang.org/api/drive/v3)
+- [Go quickstart - Google Sheets](https://developers.google.com/sheets/api/quickstart/go)
+
+---
+
+### Summary Table
+
+| Use Case | Required Scope | Alternative Scopes |
+|----------|----------------|-------------------|
+| **Read Docs** | `documents.readonly` | `documents`, `drive.file`, `drive` |
+| **Write to Docs** | `documents` | `drive.file`, `drive` |
+| **Add Docs comments** | `documents` | `drive.file`, `drive` |
+| **Read Sheets** | `spreadsheets.readonly` | `spreadsheets`, `drive.file`, `drive` |
+| **Write to Sheets** | `spreadsheets` | `drive.file`, `drive` |
+| **Read Drive comments** | `drive.readonly` | `drive.file`, `drive`, `docs` |
+| **Write Drive comments** | `drive` or `drive.file` | (none - write requires these two) |</result>
+<usage><total_tokens>106589</total_tokens><tool_uses>24</tool_uses><duration_ms>125494</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>ac60c827422e6accc</task-id>
+<tool-use-id>toolu_01516m8ZSn9rgoyyNe1wrYHf</tool-use-id>
+<output-file>/tmp/claude-1000/-home-listellm-repos-panthrocorp-openclaw-skills/55eb9a3f-3ff5-411d-a34a-cce744c87d28/tasks/ac60c827422e6accc.output</output-file>
+<status>completed</status>
+<summary>Agent "Plan Docs/Sheets/Drive comments" completed</summary>
+<result>I cannot write to the plan file since no Write tool is available. I will present the full implementation plan directly in my response.
+
+---
+
+# Implementation Plan: Google Docs, Sheets, and Drive Comments for google-workspace
+
+## Part 1: Design Decisions (Answering the 5 Key Questions)
+
+### Question 1: Config model change for Drive
+
+**Recommendation: (a) -- Promote `Drive` from `bool` to `DriveMode` with custom `UnmarshalJSON` for backwards compatibility.**
+
+Rationale: Option (b) (`DriveComments bool`) fragments the Drive concept and will compound as more Drive write features are added. Option (c) (breaking change) is hostile to users who have deployed `config.json` files. Option (a) follows the Calendar precedent exactly and handles migration transparently.
+
+The custom unmarshal logic is straightforward: if the JSON token is a boolean, map `true` to `"readonly"` and `false` to `"off"`. If it is a string, unmarshal normally. This is a 15-line method on a new `DriveMode` type.
+
+### Question 2: Docs config
+
+**Recommendation: Use `off`/`readonly`/`readwrite` as `DocsMode`, identical to `CalendarMode` and the new `DriveMode`.**
+
+`true` as a value is inconsistent with every other multi-mode gate. The three types (`CalendarMode`, `DriveMode`, `DocsMode`) should share the exact same value space. In fact, all three can be a single generic `ServiceMode` type to reduce code duplication. I will define one `ServiceMode string` type with constants `Off`, `ReadOnly`, `ReadWrite` and redefine `CalendarMode` as an alias (or just replace it). However, since `CalendarMode` is already in use and the JSON values are stable (`"off"`, `"readonly"`, `"readwrite"`), renaming it is safe -- callers reference the constants, not the type name. I recommend the unified type approach.
+
+### Question 3: Docs comments vs Drive comments
+
+**Recommendation: Use the Drive API for ALL comments across all file types, including Docs.**
+
+Rationale:
+- The Drive Comments API (`drive.comments`) works uniformly on Docs, Sheets, Slides, PDFs, and all other Drive files.
+- The Google Docs API does not have a comments endpoint at all -- comment management for Docs is done via the Drive API.
+- Using a single API surface means one comment client, one set of tests, one set of commands.
+- This eliminates the `docs comment` commands entirely. Comments always go through `drive comment`.
+
+The issue lists `docs comment` and `docs comments list`, but these should be folded into the `drive comment` commands since the Drive API is the correct API for comments on any file type including Docs.
+
+### Question 4: Scope escalation
+
+**Recommendation: Use `drive.readonly` for `DriveMode="readonly"` and `drive` (full) for `DriveMode="readwrite"`. Do NOT use `drive.file`.**
+
+Rationale:
+- `drive.file` only grants access to files created by the app, which means it cannot comment on arbitrary user files.
+- The `drive` scope is the only scope that allows commenting on files the user did not create via the app.
+- The scope escalation is significant, but it is gated behind an explicit config change (`DriveMode="readwrite"`) plus re-authentication. The operator consciously opts in.
+- The config UI should display a warning when Drive mode is changed to readwrite, similar to how Calendar already warns about re-authentication.
+
+### Question 5: Docs edit command
+
+**Recommendation: Expose two focused operations as flags on a single `docs edit` command, plus a raw JSON escape hatch.**
+
+The three modes:
+1. `docs edit --document-id <id> --insert-text "hello" --index 5` -- positional insert
+2. `docs edit --document-id <id> --find "old text" --replace-with "new text"` -- find-and-replace-all
+3. `docs edit --document-id <id> --requests-json '{"requests":[...]}'` -- raw batch update for advanced use
+
+This avoids subcommand proliferation while covering the 90% use case (insert, find-replace) with simple flags. The raw JSON flag is the escape hatch for complex operations (delete ranges, formatting, etc.).
+
+Separate `docs insert` / `docs replace` / `docs delete` subcommands are overkill for a CLI skill -- the agent will almost always use find-and-replace or insert-at-end.
+
+---
+
+## Part 2: Config Model Changes
+
+### 2.1 New unified `ServiceMode` type
+
+Replace `CalendarMode` with a generic `ServiceMode` type in `/home/listellm/repos/panthrocorp/openclaw-skills/google-workspace/internal/config/config.go`:
+
+```go
+type ServiceMode string
+
+const (
+    ModeOff       ServiceMode = "off"
+    ModeReadOnly  ServiceMode = "readonly"
+    ModeReadWrite ServiceMode = "readwrite"
+)
+```
+
+Keep `CalendarMode` as a type alias for backwards compatibility in case any external code references it:
+```go
+type CalendarMode = ServiceMode
+const (
+    CalendarOff       = ModeOff
+    CalendarReadOnly  = ModeReadOnly
+    CalendarReadWrite = ModeReadWrite
+)
+```
+
+### 2.2 New config fields
+
+```go
+type Config struct {
+    Gmail    bool        `json:"gmail"`
+    Calendar ServiceMode `json:"calendar"`
+    Contacts bool        `json:"contacts"`
+    Drive    ServiceMode `json:"drive"`
+    Docs     ServiceMode `json:"docs"`
+    Sheets   ServiceMode `json:"sheets"`
+}
+```
+
+### 2.3 Backwards-compatible Drive unmarshalling
+
+Add a custom `UnmarshalJSON` on the `Config` struct that handles the `"drive": true` / `"drive": false` legacy format:
+
+```go
+func (c *Config) UnmarshalJSON(data []byte) error {
+    // Use a raw struct to avoid infinite recursion
+    type raw struct {
+        Gmail    bool            `json:"gmail"`
+        Calendar ServiceMode     `json:"calendar"`
+        Contacts bool            `json:"contacts"`
+        Drive    json.RawMessage `json:"drive"`
+        Docs     ServiceMode     `json:"docs"`
+        Sheets   ServiceMode     `json:"sheets"`
+    }
+    var r raw
+    if err := json.Unmarshal(data, &r); err != nil {
+        return err
+    }
+    c.Gmail = r.Gmail
+    c.Calendar = r.Calendar
+    c.Contacts = r.Contacts
+    c.Docs = r.Docs
+    c.Sheets = r.Sheets
+
+    // Handle Drive: bool (legacy) or string (new)
+    if len(r.Drive) > 0 {
+        if r.Drive[0] == 't' || r.Drive[0] == 'f' {
+            var b bool
+            if err := json.Unmarshal(r.Drive, &b); err != nil {
+                return err
+            }
+            if b { c.Drive = ModeReadOnly } else { c.Drive = ModeOff }
+        } else {
+            var m ServiceMode
+            if err := json.Unmarshal(r.Drive, &m); err != nil {
+                return err
+            }
+            c.Drive = m
+        }
+    }
+    return nil
+}
+```
+
+### 2.4 Updated `DefaultConfig`
+
+```go
+func DefaultConfig() Config {
+    return Config{
+        Gmail:    true,
+        Calendar: ModeReadOnly,
+        Contacts: true,
+        Drive:    ModeReadOnly,
+        Docs:     ModeOff,      // new services default off
+        Sheets:   ModeOff,      // new services default off
+    }
+}
+```
+
+### 2.5 Updated `Validate`
+
+Validate all three `ServiceMode` fields (Calendar, Drive, Docs, Sheets).
+
+### 2.6 Updated `OAuthScopes`
+
+```go
+func (c Config) OAuthScopes() []string {
+    var scopes []string
+
+    if c.Gmail {
+        scopes = append(scopes, "https://www.googleapis.com/auth/gmail.readonly")
+    }
+    switch c.Calendar {
+    case ModeReadOnly:
+        scopes = append(scopes, "https://www.googleapis.com/auth/calendar.readonly")
+    case ModeReadWrite:
+        scopes = append(scopes, "https://www.googleapis.com/auth/calendar.events")
+    }
+    if c.Contacts {
+        scopes = append(scopes, "https://www.googleapis.com/auth/contacts.readonly")
+    }
+    switch c.Drive {
+    case ModeReadOnly:
+        scopes = append(scopes, "https://www.googleapis.com/auth/drive.readonly")
+    case ModeReadWrite:
+        scopes = append(scopes, "https://www.googleapis.com/auth/drive")
+    }
+    switch c.Docs {
+    case ModeReadOnly:
+        scopes = append(scopes, "https://www.googleapis.com/auth/documents.readonly")
+    case ModeReadWrite:
+        scopes = append(scopes, "https://www.googleapis.com/auth/documents")
+    }
+    switch c.Sheets {
+    case ModeReadOnly:
+        scopes = append(scopes, "https://www.googleapis.com/auth/spreadsheets.readonly")
+    case ModeReadWrite:
+        scopes = append(scopes, "https://www.googleapis.com/auth/spreadsheets")
+    }
+    return scopes
+}
+```
+
+---
+
+## Part 3: File-by-File Implementation Plan
+
+### Files to modify
+
+| File | Changes |
+|------|---------|
+| `internal/config/config.go` | Add `ServiceMode` type, change `Drive` to `ServiceMode`, add `Docs`/`Sheets` fields, custom `UnmarshalJSON`, update `Validate`, update `OAuthScopes`, update `DefaultConfig` |
+| `internal/config/config_test.go` | Add tests for: legacy bool Drive unmarshal, new ServiceMode Drive, Docs/Sheets validation, new scope combinations, backwards-compat round-trip |
+| `cmd/config.go` | Change `--drive` from `*bool` to `string` (like `--calendar`), add `--docs` and `--sheets` flags as strings |
+| `cmd/drive.go` | Change `driveClient()` to accept and return `ServiceMode`, change the enabled check from `!cfg.Drive` to `cfg.Drive == config.ModeOff`, add comment/reply subcommands with readwrite mode guard |
+| `cmd/root.go` | Update the `Short` description to reflect Docs/Sheets/Drive-comments |
+| `internal/google/drive.go` | Add `mode` field to `DriveClient`, add `ListComments`, `CreateComment`, `ReplyToComment` methods with mode guard |
+| `internal/google/calendar.go` | Change `config.CalendarMode` references to `config.ServiceMode` (aliased, so may be transparent) |
+
+### Files to create
+
+| File | Purpose |
+|------|---------|
+| `internal/google/docs.go` | `DocsClient` struct wrapping `docs/v1.Service` with `mode ServiceMode`. Methods: `GetDocument`, `InsertText`, `ReplaceAllText`, `BatchUpdate` (raw). Read methods always allowed; write methods guard on `ModeReadWrite`. |
+| `internal/google/sheets.go` | `SheetsClient` struct wrapping `sheets/v4.Service` with `mode ServiceMode`. Methods: `GetSpreadsheet` (list tabs), `ReadRange`, `WriteRange`. Write methods guard on `ModeReadWrite`. |
+| `cmd/docs.go` | Cobra commands: `docs read`, `docs edit`. Factory function `docsClient()` following the same pattern as `calendarClient()`. |
+| `cmd/sheets.go` | Cobra commands: `sheets read`, `sheets write`, `sheets list`. Factory function `sheetsClient()`. |
+
+### Go module changes
+
+`go.mod` needs `google.golang.org/api` which is already present at v0.273.1. The `docs/v1` and `sheets/v4` packages are part of that module, so no new dependencies are required -- just new import paths.
+
+---
+
+## Part 4: Security Enforcement (Three Layers)
+
+Following the existing pattern documented in CLAUDE.md:
+
+### Layer 1: Code-level (compile time)
+
+- `DocsClient` write methods (`InsertText`, `ReplaceAllText`, `BatchUpdate`) check `c.mode != config.ModeReadWrite` and return a descriptive error.
+- `SheetsClient.WriteRange` checks `c.mode != config.ModeReadWrite` and returns an error.
+- `DriveClient` comment methods (`CreateComment`, `ReplyToComment`) check `c.mode != config.ModeReadWrite` and return an error.
+- Read-only clients for Docs/Sheets (when `mode == ModeReadOnly`) physically cannot call write methods because the mode guard fires first. This is the same pattern as `CalendarClient`.
+
+### Layer 2: Config-level (runtime)
+
+- CLI commands that perform writes check the mode BEFORE calling the client method. This is the existing Calendar pattern: `calendarCreateCmd` checks `mode != config.CalendarReadWrite` and calls `exitf`. New write commands for Docs, Sheets, and Drive comments will do the same.
+- This provides a user-facing error message before the API call is even attempted.
+
+### Layer 3: Google Cloud project (server-side)
+
+- The operator must enable the Docs API and Sheets API in their Google Cloud project console.
+- OAuth scopes are derived from config, so a readonly config never requests write scopes, meaning the token physically cannot perform write operations even if code bugs exist.
+- CLAUDE.md should be updated to list the additional APIs: Google Docs API, Google Sheets API.
+
+---
+
+## Part 5: Command Structure
+
+### Drive (updated)
+
+```
+google-workspace drive list [--query Q] [--max-results N]
+google-workspace drive get --id FILE_ID
+google-workspace drive download --id FILE_ID
+google-workspace drive comments list --file-id FILE_ID          # NEW
+google-workspace drive comment --file-id FILE_ID --content TEXT  # NEW (requires readwrite)
+google-workspace drive comment reply --file-id FILE_ID --comment-id CID --content TEXT  # NEW (requires readwrite)
+```
+
+### Docs (new)
+
+```
+google-workspace docs read --document-id DOC_ID
+google-workspace docs edit --document-id DOC_ID --insert-text TEXT [--index N]
+google-workspace docs edit --document-id DOC_ID --find TEXT --replace-with TEXT
+google-workspace docs edit --document-id DOC_ID --requests-json JSON
+```
+
+### Sheets (new)
+
+```
+google-workspace sheets list --spreadsheet-id SSID
+google-workspace sheets read --spreadsheet-id SSID --range A1RANGE
+google-workspace sheets write --spreadsheet-id SSID --range A1RANGE --values JSON
+```
+
+### Config set (updated flags)
+
+```
+google-workspace config set --drive=readonly|readwrite|off
+google-workspace config set --docs=readonly|readwrite|off
+google-workspace config set --sheets=readonly|readwrite|off
+```
+
+---
+
+## Part 6: Detailed Implementation for New API Clients
+
+### `internal/google/docs.go`
+
+```go
+type DocsClient struct {
+    svc  *docs.Service
+    mode config.ServiceMode
+}
+
+func NewDocsClient(ctx context.Context, ts oauth2.TokenSource, mode config.ServiceMode) (*DocsClient, error)
+
+func (c *DocsClient) GetDocument(ctx context.Context, docID string) (*docs.Document, error)
+// Returns the full document. The cmd layer can extract body content and format it.
+
+func (c *DocsClient) InsertText(ctx context.Context, docID string, text string, index int64) error
+// Mode-guarded. Uses docs.BatchUpdateDocumentRequest with InsertTextRequest.
+
+func (c *DocsClient) ReplaceAllText(ctx context.Context, docID string, find, replace string) (*docs.BatchUpdateDocumentResponse, error)
+// Mode-guarded. Uses ReplaceAllTextRequest.
+
+func (c *DocsClient) BatchUpdate(ctx context.Context, docID string, requests []*docs.Request) (*docs.BatchUpdateDocumentResponse, error)
+// Mode-guarded. Raw passthrough for advanced use.
+```
+
+### `internal/google/sheets.go`
+
+```go
+type SheetsClient struct {
+    svc  *sheets.Service
+    mode config.ServiceMode
+}
+
+func NewSheetsClient(ctx context.Context, ts oauth2.TokenSource, mode config.ServiceMode) (*SheetsClient, error)
+
+func (c *SheetsClient) GetSpreadsheet(ctx context.Context, spreadsheetID string) (*sheets.Spreadsheet, error)
+// Returns metadata including sheet names/tabs. No mode guard (read).
+
+func (c *SheetsClient) ReadRange(ctx context.Context, spreadsheetID, rangeA1 string) (*sheets.ValueRange, error)
+// Returns cell values. No mode guard (read).
+
+func (c *SheetsClient) WriteRange(ctx context.Context, spreadsheetID, rangeA1 string, values [][]interface{}) error
+// Mode-guarded. Uses spreadsheets.values.Update.
+```
+
+### `internal/google/drive.go` (additions)
+
+```go
+// Add mode field to DriveClient
+type DriveClient struct {
+    svc  *drive.Service
+    mode config.ServiceMode  // NEW
+}
+
+// Update constructor to accept mode
+func NewDriveClient(ctx context.Context, ts oauth2.TokenSource, mode config.ServiceMode) (*DriveClient, error)
+
+// NEW methods:
+func (c *DriveClient) ListComments(ctx context.Context, fileID string) ([]*drive.Comment, error)
+// No mode guard -- reading comments only needs readonly access? Actually, listing comments
+// requires drive.readonly, so no guard needed.
+
+func (c *DriveClient) CreateComment(ctx context.Context, fileID, content string) (*drive.Comment, error)
+// Mode-guarded: requires ModeReadWrite.
+
+func (c *DriveClient) ReplyToComment(ctx context.Context, fileID, commentID, content string) (*drive.Reply, error)
+// Mode-guarded: requires ModeReadWrite.
+```
+
+**Important note on Drive comment read access**: The `drive.readonly` scope is sufficient to list comments. The `drive` (full) scope is only needed to create/reply to comments. So `ListComments` should work even in readonly mode.
+
+---
+
+## Part 7: Implementation Order
+
+This sequence ensures each step is independently testable and releasable.
+
+### Step 1: Config model refactor (foundation)
+
+1. Define `ServiceMode` type and constants in `config.go`
+2. Alias `CalendarMode` to `ServiceMode`
+3. Change `Drive` from `bool` to `ServiceMode`
+4. Add custom `UnmarshalJSON` for backwards compatibility
+5. Add `Docs` and `Sheets` fields (defaulting to `ModeOff`)
+6. Update `Validate`, `OAuthScopes`, `DefaultConfig`
+7. Update all tests in `config_test.go`
+8. Update `cmd/config.go` to change `--drive` from `*bool` to `string` and add `--docs`/`--sheets` flags
+
+### Step 2: Drive mode migration
+
+1. Update `cmd/drive.go` -- change `driveClient()` to handle `ServiceMode`, return mode
+2. Update `internal/google/drive.go` -- add `mode` field, update constructor signature
+3. Update the call site in `cmd/drive.go` to pass `cfg.Drive` (ServiceMode) to `NewDriveClient`
+4. Existing read operations continue to work for both `readonly` and `readwrite` modes
+
+### Step 3: Drive comments
+
+1. Add `ListComments`, `CreateComment`, `ReplyToComment` to `internal/google/drive.go`
+2. Add `drive comments list`, `drive comment`, `drive comment reply` subcommands in `cmd/drive.go`
+3. Write mode guard in both layers (client method + cmd)
+
+### Step 4: Docs support
+
+1. Create `internal/google/docs.go` with `DocsClient`
+2. Create `cmd/docs.go` with `docsClient()` factory, `docs read`, `docs edit`
+3. Add `go.mod` import for `google.golang.org/api/docs/v1` (auto-resolved)
+
+### Step 5: Sheets support
+
+1. Create `internal/google/sheets.go` with `SheetsClient`
+2. Create `cmd/sheets.go` with `sheetsClient()` factory, `sheets read`, `sheets write`, `sheets list`
+3. Add `go.mod` import for `google.golang.org/api/sheets/v4` (auto-resolved)
+
+### Step 6: Documentation updates
+
+1. Update `CLAUDE.md` to reflect new services, modes, and three-layer enforcement
+2. Update `SKILL.md` with new commands and config options
+3. Update `README.md`
+4. Update `rootCmd.Short` in `cmd/root.go`
+
+---
+
+## Part 8: Testing Approach
+
+### Unit tests
+
+**`internal/config/config_test.go`** (expand existing):
+- Legacy `"drive": true` unmarshals to `ModeReadOnly`
+- Legacy `"drive": false` unmarshals to `ModeOff`
+- New `"drive": "readwrite"` unmarshals correctly
+- Missing `"docs"` and `"sheets"` fields default to `ModeOff`
+- `Validate` rejects invalid Docs/Sheets/Drive modes
+- `OAuthScopes` returns correct scopes for each combination
+- Round-trip `Save` then `Load` preserves all fields
+- Backwards compat: a config saved by old code (with `"drive": true`) loads correctly with new code
+
+**`internal/google/drive_test.go`** (new or expand):
+- `CreateComment` returns error when mode is `ModeReadOnly`
+- `ReplyToComment` returns error when mode is `ModeReadOnly`
+- `ListComments` succeeds in `ModeReadOnly` mode
+
+**`internal/google/docs_test.go`** (new):
+- `InsertText` returns error when mode is `ModeReadOnly`
+- `ReplaceAllText` returns error when mode is `ModeReadOnly`
+- `GetDocument` succeeds in `ModeReadOnly`
+
+**`internal/google/sheets_test.go`** (new):
+- `WriteRange` returns error when mode is `ModeReadOnly`
+- `ReadRange` succeeds in `ModeReadOnly`
+
+### Integration testing
+
+Manual testing against a real Google account is required for the API wrappers. The unit tests above only validate mode guards and error paths. The actual Google API calls should be tested manually with:
+1. A test Google Cloud project with Docs API, Sheets API, and Drive API enabled
+2. A test document and spreadsheet
+3. Config set to `readwrite` for each service
+
+---
+
+## Part 9: Potential Challenges
+
+1. **Custom UnmarshalJSON interaction with `json.MarshalIndent`**: When saving, the new `Config` will marshal `Drive` as a string (`"readonly"`). Old binaries that read this config will fail to unmarshal `"drive": "readonly"` into `bool`. This is a one-way migration -- once the config is saved by the new binary, old binaries cannot read it. This is acceptable since the old binary would not have the new features anyway.
+
+2. **Drive scope escalation requires re-auth**: When a user changes Drive from `readonly` to `readwrite`, they must run `auth login` again. The config set command already prints this warning. No additional logic is needed.
+
+3. **Docs edit index calculation**: The `--index` flag for `InsertText` requires the user to know the character index in the document. This is fragile. The `docs read` command should output the document with index information (or at minimum document length) to help the agent calculate positions. Consider adding a `--at-end` convenience flag that inserts at the end of the document body.
+
+4. **Sheets `--values` JSON parsing**: The `--values` flag expects a JSON 2D array like `[["a","b"],["c","d"]]`. This is straightforward for an agent but should be documented with examples.
+
+5. **Drive comments on Google Docs**: The Drive API comments work differently from Docs-native comments -- they appear in the "Activity" panel rather than as inline margin comments with anchors. This is acceptable for the initial implementation. Anchored comments (tied to specific text ranges) would require using the `anchor` field on the Drive Comment resource, which uses a complex format. This can be a follow-up enhancement.
+
+---
+
+### Critical Files for Implementation
+- /home/listellm/repos/panthrocorp/openclaw-skills/google-workspace/internal/config/config.go
+- /home/listellm/repos/panthrocorp/openclaw-skills/google-workspace/cmd/drive.go
+- /home/listellm/repos/panthrocorp/openclaw-skills/google-workspace/cmd/config.go
+- /home/listellm/repos/panthrocorp/openclaw-skills/google-workspace/internal/google/drive.go
+- /home/listellm/repos/panthrocorp/openclaw-skills/google-workspace/internal/config/config_test.go</result>
+<usage><total_tokens>40372</total_tokens><tool_uses>22</tool_uses><duration_ms>160145</duration_ms></usage>
+</task-notification>
+
+---
+
+If the app was given a file link to open, could they open it and then comment on that file?
+
+---
+
+fukll drive it is then
+
+---
+
+yes
+
+---
+
+<task-notification>
+<task-id>a5820bd177d09306c</task-id>
+<tool-use-id>toolu_018U8p5oZoKCJW2kEZix6iRw</tool-use-id>
+<output-file>/tmp/claude-1000/-home-listellm-repos-panthrocorp-openclaw-skills/55eb9a3f-3ff5-411d-a34a-cce744c87d28/tasks/a5820bd177d09306c.output</output-file>
+<status>completed</status>
+<summary>Agent "Security review of changes" completed</summary>
+<result>Good, I have all the context I need. Here is the full security audit.
+
+---
+
+# Security Audit Report: Google Workspace Skill (Docs, Sheets, Drive Comments)
+
+**Audit date:** 2026-04-02
+**Scope:** New Docs, Sheets, and Drive comments functionality added to the google-workspace OpenClaw skill
+**Threat model:** Hostile agent running inside a Docker container on EC2, attempting to escalate privileges, bypass mode guards, exfiltrate data, or perform unauthorised writes
+
+---
+
+## FINDING 1 (CRITICAL): Drive scope escalation from `drive.readonly` to full `drive` scope
+
+**File:** `/home/listellm/repos/panthrocorp/openclaw-skills/google-workspace/internal/config/config.go`, lines 194-199
+
+When Drive is set to `readwrite`, `OAuthScopes()` requests `https://www.googleapis.com/auth/drive` (the full Drive scope). This is the broadest Google Drive scope available. It grants not just comment creation but also:
+
+- File creation, deletion, and modification
+- Permission changes (sharing files externally)
+- Trash and permanent deletion
+- Moving files between folders
+
+The `DriveClient` struct does not expose file write/delete/share methods, so the code surface is limited. However, the **token itself** carries the full `drive` scope. A hostile agent that can read the token encryption key (`GOOGLE_WORKSPACE_TOKEN_KEY` environment variable) and the encrypted token file can construct its own HTTP requests against the Drive API outside this binary and perform any Drive operation.
+
+In the hostile agent threat model, the encryption key is present as an environment variable in the container. The agent can trivially read it. The encrypted token is on disk. The agent can decrypt and use it directly.
+
+**Recommendation:** Use a narrower scope. For Drive comments only, `https://www.googleapis.com/auth/drive.file` is insufficient (it only covers files the app created). However, consider whether `readwrite` mode for Drive should be restricted to comments-only by using a separate config flag (e.g. `drive_comments: true`) rather than escalating the entire Drive scope. At minimum, document prominently that `drive=readwrite` grants full Drive access at the token level, not just comment access.
+
+**Risk:** A hostile agent with container access can use the full Drive scope token to delete files, exfiltrate data to external accounts by changing share permissions, or permanently destroy content.
+
+---
+
+## FINDING 2 (HIGH): `BatchUpdate` raw passthrough in DocsClient is an unrestricted write surface
+
+**File:** `/home/listellm/repos/panthrocorp/openclaw-skills/google-workspace/internal/google/docs.go`, lines 103-115
+**File:** `/home/listellm/repos/panthrocorp/openclaw-skills/google-workspace/cmd/docs.go`, lines 133-143
+
+The `--requests-json` flag on `docs edit` accepts arbitrary Docs API batch update requests and passes them directly through to the Google Docs API. The Docs `BatchUpdate` method supports request types that go beyond text editing:
+
+- `DeleteContentRange` (bulk content deletion)
+- `InsertInlineImage` (inject images from external URLs, potential for phishing/tracking pixels)
+- `InsertTable`, `DeleteTable`
+- `CreateNamedRange`, `DeleteNamedRange`
+- `ReplaceNamedRangeContent`
+- `UpdateDocumentStyle`, `UpdateSectionStyle`
+
+While the mode guard is correctly applied (`mode != ModeReadWrite`), the surface area is unbounded. A hostile agent in readwrite mode can perform any Docs API operation, not just the text insert/replace operations implied by the CLI's help text.
+
+**Recommendation:** Either (a) restrict allowed request types in `BatchUpdate` to a safelist, or (b) remove the `--requests-json` passthrough entirely and only expose the specific operations the skill intends to support (insert text, find-and-replace). If the raw passthrough is intentional, document it as a known risk and ensure the SKILL.md makes this clear to operators.
+
+---
+
+## FINDING 3 (MEDIUM): `UnmarshalJSON` migration logic relies on first-byte heuristic
+
+**File:** `/home/listellm/repos/panthrocorp/openclaw-skills/google-workspace/internal/config/config.go`, lines 71-89
+
+The backwards-compatibility migration checks `r.Drive[0] == 't' || r.Drive[0] == 'f'` to detect legacy boolean values versus the new ServiceMode string. This works for the expected inputs (`true`, `false`, `"readonly"`, `"readwrite"`, `"off"`), but consider these edge cases:
+
+- A JSON string `"false"` (the string value, not the boolean) starts with `"` so it correctly falls through to the string path, but it would fail `validateMode` later. This is safe.
+- A raw JSON value like `0` or `1` (number) would not match `t` or `f`, would fall to the string unmarshal path, and would fail. This is safe but with a poor error message.
+- If `r.Drive` is `null` (4 bytes, starts with `n`), `len(r.Drive) > 0` is true but neither branch matches, so it falls to string unmarshal of `null` which yields an empty ServiceMode, and Drive defaults to... nothing. The empty string is not caught here because there is no default-to-off for Drive when the string unmarshal succeeds with an empty string.
+
+Wait, re-reading: the `json.Unmarshal(r.Drive, &m)` for a JSON `null` will set `m` to `""` (zero value), and then `c.Drive = ""`. This passes through to `Validate()` which calls `validateMode("drive", "")` and `""` does not match any of `off`, `readonly`, `readwrite`. So `Validate()` catches it. This is safe.
+
+**Actual risk:** Low. The migration logic is sound for all realistic inputs and `Validate()` acts as a safety net. The only concern is that a hostile agent who can write to `config.json` could craft unusual JSON to probe for panics (e.g. empty `drive` array `[]`), but `json.Unmarshal` on `json.RawMessage` of `[]` into a bool or string would return an error, which is properly handled.
+
+**Recommendation:** Add a unit test covering edge cases (`null`, `0`, `[]`, empty string) to document that these are handled. No code change required.
+
+---
+
+## FINDING 4 (MEDIUM): No runtime scope mismatch detection
+
+**Files:** All `cmd/*.go` client constructors (`docsClient()`, `sheetsClient()`, `driveClient()`)
+
+When an operator changes config from `readonly` to `readwrite` but does not re-authenticate, the token still carries the old (narrower) scopes. The binary does not detect this mismatch. The Google API will reject the request with a 403, but the error message from Google can be opaque.
+
+More importantly in the hostile agent model: a hostile agent could run `config set --drive=readwrite` to change the config, but the token remains readonly-scoped. The agent cannot re-authenticate (requires human interaction via browser). This is actually a **defence** against scope escalation at runtime. The hostile agent can change the config file but cannot obtain a new token with broader scopes.
+
+**Risk:** Low for security (the token is the enforcer). Medium for usability (confusing errors after config change).
+
+**Recommendation:** On client construction, compare the scopes in the stored token against `cfg.OAuthScopes()`. If they differ, warn or refuse. This improves both UX and makes the defence-in-depth more explicit.
+
+---
+
+## FINDING 5 (MEDIUM): Docs and Sheets clients are constructable even in `ModeOff`
+
+**File:** `/home/listellm/repos/panthrocorp/openclaw-skills/google-workspace/internal/google/docs.go`, line 25
+**File:** `/home/listellm/repos/panthrocorp/openclaw-skills/google-workspace/internal/google/sheets.go`, line 25
+
+`NewDocsClient` and `NewSheetsClient` accept any `ServiceMode` including `ModeOff`. They do not reject construction with `ModeOff`. The CLI commands in `cmd/docs.go` and `cmd/sheets.go` correctly guard against `ModeOff` before constructing the client, so this is not exploitable through the normal CLI path.
+
+However, if any future code path constructs these clients without the CLI guard (e.g. a library consumer, a test, or a future command), the client would happily initialise and allow read operations even when the service is supposed to be off. Read operations (`GetDocument`, `ReadRange`, `GetSpreadsheet`) have no mode check at all (by design, consistent with the calendar pattern).
+
+**Recommendation:** Add a constructor guard: `NewDocsClient` and `NewSheetsClient` should return an error if `mode == ModeOff`. This matches the defence-in-depth principle. The `DriveClient` has the same gap.
+
+---
+
+## FINDING 6 (LOW): No input length validation on comment/text content
+
+**Files:**
+- `/home/listellm/repos/panthrocorp/openclaw-skills/google-workspace/internal/google/drive.go`, line 131 (CreateComment)
+- `/home/listellm/repos/panthrocorp/openclaw-skills/google-workspace/internal/google/docs.go`, line 57 (InsertText)
+- `/home/listellm/repos/panthrocorp/openclaw-skills/google-workspace/cmd/sheets.go`, line 116 (WriteRange values JSON)
+
+No length or size validation is performed on user-supplied content before sending it to the Google APIs. A hostile agent could submit extremely large payloads (multi-megabyte strings) to cause high memory usage or API timeouts. Google APIs have their own server-side limits, so this is not a data integrity issue, but it could be used for resource exhaustion within the container.
+
+**Recommendation:** Add reasonable upper bounds on content length at the CLI layer. For example, limit comment text to 100KB, document insert text to 1MB, and sheet values JSON to 10MB.
+
+---
+
+## FINDING 7 (LOW): Sheets `ValueInputOption` is hardcoded to `USER_ENTERED`
+
+**File:** `/home/listellm/repos/panthrocorp/openclaw-skills/google-workspace/internal/google/sheets.go`, line 69
+
+`USER_ENTERED` means Google Sheets will interpret the input as if a user typed it into the UI. This includes formula evaluation. A hostile agent could inject formulas like `=IMPORTRANGE(...)` to exfiltrate data from other spreadsheets, or `=IMAGE("https://attacker.example/tracking.png")` for tracking/phishing.
+
+**Recommendation:** Consider using `RAW` as the default `ValueInputOption`, or add a `--raw` flag to let the operator choose. If `USER_ENTERED` is the intended default, document the formula injection risk clearly.
+
+---
+
+## FINDING 8 (INFO): Mode guard consistency audit (PASS)
+
+All write methods across all new clients correctly check `c.mode != config.ModeReadWrite` before performing write operations:
+
+| Client | Method | Guard | Verdict |
+|--------|--------|-------|---------|
+| DriveClient | CreateComment | line 128 | PASS |
+| DriveClient | ReplyToComment | line 143 | PASS |
+| DocsClient | InsertText | line 47 | PASS |
+| DocsClient | ReplaceAllText | line 78 | PASS |
+| DocsClient | BatchUpdate | line 105 | PASS |
+| SheetsClient | WriteRange | line 59 | PASS |
+
+All CLI write commands additionally check mode before calling the client method (defence-in-depth, consistent with the existing calendar pattern). This is correctly implemented.
+
+---
+
+## FINDING 9 (INFO): Credential handling (PASS)
+
+Token decryption follows the same pattern as existing services. The encryption key is loaded from environment, token is decrypted from `token.enc`, and the OAuth config is constructed with scopes derived from the current config. No new credential handling code was introduced. No unencrypted fallback exists (verified in prior audit of `internal/crypto/`).
+
+---
+
+## Summary
+
+| Severity | Count | Description |
+|----------|-------|-------------|
+| CRITICAL | 1 | Full Drive scope escalation when readwrite is enabled |
+| HIGH | 1 | Unrestricted Docs BatchUpdate passthrough |
+| MEDIUM | 3 | UnmarshalJSON edge cases, no scope mismatch detection, ModeOff constructor gap |
+| LOW | 2 | No input length validation, formula injection via USER_ENTERED |
+| INFO | 2 | Mode guards consistent (pass), credential handling (pass) |
+
+## Remediation Priority
+
+1. **(Now, before merge)** Address Finding 1 by either introducing a narrower scope strategy or documenting the risk prominently in SKILL.md so operators understand what `drive=readwrite` actually grants at the token level.
+2. **(Now, before merge)** Address Finding 2 by either safelisting allowed Docs request types in `BatchUpdate` or removing `--requests-json`.
+3. **(Short-term)** Add constructor guards for `ModeOff` (Finding 5) and scope mismatch detection (Finding 4).
+4. **(Short-term)** Add a `--raw` flag or change default `ValueInputOption` for Sheets writes (Finding 7).
+5. **(Backlog)** Add input length validation (Finding 6) and UnmarshalJSON edge-case tests (Finding 3).</result>
+<usage><total_tokens>30210</total_tokens><tool_uses>18</tool_uses><duration_ms>101035</duration_ms></usage>
+</task-notification>
+
+---
+
+was this change linke dto a gh issue?
