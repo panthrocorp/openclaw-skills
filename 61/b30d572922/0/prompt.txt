@@ -1,0 +1,985 @@
+check on the cd
+
+---
+
+check the CD
+
+---
+
+go ahead
+
+---
+
+add a comment to https://github.com/PanthroCorp-Limited/openclaw/issues/146 that it is released
+
+---
+
+is the release marked available for public access?
+
+---
+
+test downloading via curl to confirm
+
+---
+
+ok, lets tackle issue 52
+
+---
+
+i want the aws cli to work for both arm and amd.  This needs to be true for all skuills we create.  Ensure that is noted either in memory or claude.md
+
+---
+
+<task-notification>
+<task-id>aa0a1f1f074285f0a</task-id>
+<tool-use-id>toolu_014L7HbUEtaDpAtrrxzfLw6r</tool-use-id>
+<output-file>/tmp/claude-1000/-home-listellm-repos-panthrocorp-openclaw-skills/334a24a9-0dfd-4f4c-911c-6045187e898d/tasks/aa0a1f1f074285f0a.output</output-file>
+<status>completed</status>
+<summary>Agent "Explore aws-cli packaging approach" completed</summary>
+<result>Excellent. Now let me compile a comprehensive summary of all the findings:
+
+## Summary: OpenClaw Skills Repository Structure and CI/CD Patterns
+
+I've read all the requested files. Here's the complete picture of the existing patterns:
+
+### **1. Release-Please Configuration** (`.release-please-config.json`)
+
+```json
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "packages": {
+    "google-workspace": {
+      "release-type": "go",
+      "component": "google-workspace",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "yaml",
+          "path": "SKILL.md",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
+    "zoho-mail": {
+      "release-type": "go",
+      "component": "zoho-mail",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "yaml",
+          "path": "SKILL.md",
+          "jsonpath": "$.version"
+        }
+      ]
+    },
+    "aws-s3": {
+      "release-type": "node",
+      "component": "aws-s3",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "yaml",
+          "path": "SKILL.md",
+          "jsonpath": "$.version"
+        }
+      ]
+    }
+  },
+  "initial-version": "0.1.0",
+  "include-component-in-tag": true,
+  "tag-separator": "/",
+  "separate-pull-requests": true
+}
+```
+
+**Current manifest versions** (`.release-please-manifest.json`):
+```json
+{
+  "google-workspace": "0.5.1",
+  "zoho-mail": "0.3.1",
+  "aws-s3": "0.2.0"
+}
+```
+
+### **2. CI Workflow** (`.github/workflows/ci.yml`)
+
+The CI workflow has **three jobs**:
+1. **build** (Go): Runs for google-workspace changes, with steps for verify, vet, test, and build
+2. **build-npm** (npm): Runs for aws-s3 changes, with steps for npm ci, audit, build, test, and pack dry-run
+3. **gate**: Ensures all checks pass
+
+Conditional pattern: Git diff checking via pattern matching against base branch changes.
+
+### **3. Release Workflow** (`.github/workflows/release-please.yml`)
+
+**First job: `release-please`**
+- Uses `googleapis/release-please-action@v4` with config and manifest files
+- Outputs release flags and tag names for each skill
+
+**Subsequent jobs** (conditional on `release-please` outputs):
+1. **publish-google-workspace** (Go skill):
+   - Checks out at the release tag
+   - Creates local version tag (strips skill name prefix)
+   - Runs GoReleaser to generate cross-platform tarballs + checksums
+   - Uploads `dist/*.tar.gz` and `dist/checksums.txt` to GitHub release
+   - Publishes to clawhub with slug `panthrocorp-google-workspace`
+
+2. **publish-zoho-mail** (Go skill):
+   - Same pattern as google-workspace
+
+3. **publish-aws-s3** (npm skill):
+   - Installs dependencies, audits, builds, tests
+   - Runs `npm pack --json` to generate a tarball (not GoReleaser)
+   - Generates checksum with `sha256sum`
+   - Uploads tarball and checksums to GitHub release
+   - Publishes to clawhub with slug `panthrocorp-aws-s3`
+
+### **4. Dependabot Configuration** (`.github/dependabot.yml`)
+
+```yaml
+version: 2
+
+updates:
+  - package-ecosystem: gomod
+    directory: /google-workspace
+    schedule:
+      interval: weekly
+    # ... labels: dependencies, prefix: fix
+
+  - package-ecosystem: gomod
+    directory: /zoho-mail
+    # ... same config
+
+  - package-ecosystem: npm
+    directory: /aws-s3
+    # ... same config
+
+  - package-ecosystem: github-actions
+    directory: /
+    # ... same config
+```
+
+### **5. Go Binary Skill Pattern: `google-workspace/.goreleaser.yml`**
+
+```yaml
+version: 2
+project_name: google-workspace
+
+builds:
+  - id: google-workspace
+    main: .
+    binary: google-workspace
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+      - -X main.version={{ .Version }}
+
+archives:
+  - id: google-workspace
+    format: tar.gz
+    name_template: "google-workspace_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+
+checksum:
+  name_template: "checksums.txt"
+
+release:
+  disable: true
+
+changelog:
+  disable: true
+```
+
+**Key points:**
+- Produces 4 platform-specific tarballs (linux/amd64, linux/arm64, darwin/amd64, darwin/arm64)
+- Version injected via ldflags at build time
+- Checksum file generated automatically
+- Release handled by workflow, not GoReleaser (release.disable: true)
+
+### **6. npm Skill Pattern: `aws-s3` Structure**
+
+**package.json:**
+```json
+{
+  "name": "@openclaw/aws-s3",
+  "version": "0.2.0",
+  "description": "Self-contained AWS S3 SDK bundle for OpenClaw agents",
+  "main": "dist/index.cjs",
+  "exports": {
+    ".": {
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist/",
+    "SKILL.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "node esbuild.config.mjs",
+    "test": "node --test test/exports.test.mjs"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-s3": "^3.750.0",
+    "esbuild": "^0.28.0"
+  },
+  "engines": {
+    "node": "&gt;=22"
+  },
+  "license": "MIT-0",
+  "author": "panthrocorp",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PanthroCorp-Limited/openclaw-skills",
+    "directory": "aws-s3"
+  }
+}
+```
+
+**esbuild.config.mjs:**
+```javascript
+import { build } from "esbuild";
+
+await build({
+  entryPoints: ["src/index.mjs"],
+  bundle: true,
+  platform: "node",
+  target: "node22",
+  format: "cjs",
+  outfile: "dist/index.cjs",
+});
+```
+
+**src/index.mjs:**
+```javascript
+export * from "@aws-sdk/client-s3";
+```
+
+**Release flow:**
+- `npm pack --json` creates a tarball named `openclaw-aws-s3-0.2.0.tgz`
+- `npm pack` uses the `files` field from package.json to determine what goes into tarball
+- Checksum generated with `sha256sum`
+- `npm audit --audit-level=high` enforced in both CI and release workflow
+
+### **7. SKILL.md Manifest Schema**
+
+**google-workspace/SKILL.md (excerpt):**
+```yaml
+---
+name: Google Workspace
+description: Gmail, Contacts, Calendar, Drive (with comments), Docs, and Sheets for OpenClaw agents
+version: 0.4.2
+author: panthrocorp
+license: MIT-0
+metadata:
+  openclaw:
+    requires:
+      env:
+        - GOOGLE_WORKSPACE_TOKEN_KEY
+        - GOOGLE_CLIENT_ID
+        - GOOGLE_CLIENT_SECRET
+      bins:
+        - google-workspace
+    emoji: "📧"
+    homepage: https://github.com/PanthroCorp-Limited/openclaw-skills
+    os: ["linux"]
+---
+```
+
+**aws-s3/SKILL.md (excerpt):**
+```yaml
+---
+name: AWS S3
+description: Self-contained AWS S3 SDK bundle for OpenClaw agents
+version: 0.1.0
+author: panthrocorp
+license: MIT-0
+metadata:
+  openclaw:
+    requires:
+      npm:
+        - "@openclaw/aws-s3"
+    emoji: "🪣"
+    homepage: https://github.com/PanthroCorp-Limited/openclaw-skills
+    os: ["linux"]
+---
+```
+
+**Key difference:** Go skills use `bins:` (binary executables), npm skills use `npm:` (npm packages).
+
+### **8. Adding a New Skill (from `CLAUDE.md`)**
+
+The instructions distinguish three patterns:
+
+**Go-based skills (release-type: "go"):**
+1. Create directory with `go.mod`, `main.go`, `cmd/`, `internal/`
+2. Add `SKILL.md` with YAML frontmatter
+3. Add `.goreleaser.yml` for cross-compilation
+4. Include MIT-0 `LICENSE`
+5. Add `gomod` entry to `.github/dependabot.yml`
+6. Add to `.release-please-config.json` (with `release-type: "go"`)
+7. Add version to `.release-please-manifest.json`
+
+**npm-based skills (release-type: "node"):**
+1. Create directory with `package.json`, source, esbuild config
+2. Add `SKILL.md` with YAML frontmatter (use `requires.npm` instead of `requires.bins`)
+3. Include MIT-0 `LICENSE`
+4. Add `npm` entry to `.github/dependabot.yml`
+5. Add to `.release-please-config.json` (with `release-type: "node"`)
+6. Add version to `.release-please-manifest.json`
+7. Add `build-npm` style CI job
+8. Add publish job to release workflow
+
+**Note:** The docs mention no instructions for a "repackaged third-party binary" pattern like aws-cli would be.
+
+### **9. Current Repository State**
+
+**Skills present:**
+- `google-workspace/` — Go skill (0.5.1)
+- `zoho-mail/` — Go skill (0.3.1)
+- `aws-s3/` — npm skill (0.2.0)
+
+**NO aws-cli directory exists** — it needs to be created.
+
+### **Key Findings for `aws-cli` Skill**
+
+Based on the patterns observed, here's what's needed for a **repackaged third-party binary** skill (aws-cli v2):
+
+1. **Release-type decision:** Neither "go" nor "node" fits perfectly. Options:
+   - Use `release-type: "simple"` (generic build, no package detection)
+   - Create a minimal Go module that just downloads/packages the binary (uses `release-type: "go"`)
+   - Use a custom shell-based build script with no release-type (requires manual workflow)
+
+2. **Build artifact:** Unlike GoReleaser (Go) or npm pack (npm), you'd need:
+   - A shell script that downloads AWS CLI v2 binaries for multiple platforms
+   - Creates platform-specific tarballs matching GoReleaser naming: `aws-cli_&lt;version&gt;_&lt;os&gt;_&lt;arch&gt;.tar.gz`
+   - Generates `checksums.txt` (same as GoReleaser)
+
+3. **CI pattern:** Would need a `build-binary` or `build-aws-cli` job similar to `build-npm`, but with download logic instead of npm commands
+
+4. **Publishing:** Would follow the GoReleaser pattern (upload tarballs + checksums to GitHub release, then clawhub publish)
+
+5. **SKILL.md:** Would use `requires.bins: [aws-cli]` like google-workspace (since it's a binary, not npm)
+
+6. **Dependabot:** No package ecosystem applies (no go.mod, no package.json). Could skip Dependabot entirely or use github-actions only.
+
+**The missing piece:** There's no documented pattern in CLAUDE.md for how to handle a skill that's purely a repackaged third-party binary (no source code to compile, no npm package to bundle). The existing patterns are: "build from source code" (Go) or "bundle existing npm package" (npm).</result>
+<usage><total_tokens>122546</total_tokens><tool_uses>29</tool_uses><duration_ms>50094</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a815facdf21801d83</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/tmp/claude-1000/-home-listellm-repos-panthrocorp-openclaw-skills/334a24a9-0dfd-4f4c-911c-6045187e898d/tasks/a815facdf21801d83.output</output-file>
+<status>completed</status>
+<summary>Agent "Design aws-cli skill packaging" completed</summary>
+<result>I now have a comprehensive understanding of the entire repository. Let me design the complete implementation plan.
+
+---
+
+## Implementation Plan: `aws-cli` Skill
+
+### 1. Directory Structure
+
+```
+aws-cli/
+  SKILL.md              # clawhub manifest (YAML frontmatter + agent instructions)
+  LICENSE               # MIT-0 (clawhub requirement)
+  CLAUDE.md             # Claude Code guidance for this skill
+  CHANGELOG.md          # release-please managed
+  version.txt           # single line: "0.1.0" -- release-please bumps this (simple release type)
+  scripts/
+    package.sh          # download + install + tarball for a given arch
+    verify.sh           # smoke test: run `aws --version` in a container-like env
+```
+
+**Rationale for directory structure:**
+
+- No `go.mod`, no `package.json`, no `.goreleaser.yml`. This is a third pattern: repackaged third-party binary.
+- `version.txt` is the canonical version file for `release-type: "simple"`. Release-please's `simple` type looks for a `version.txt` by default and bumps the semver in it.
+- `scripts/package.sh` replaces GoReleaser. It downloads the AWS CLI installer for a given architecture, runs the install to a staging directory, and produces a tarball matching the GoReleaser naming convention.
+- `scripts/verify.sh` is the CI test equivalent. Since there is no source code, the test is a functional verification that the packaged binary runs correctly.
+
+### 2. Build/Package Script (`scripts/package.sh`)
+
+This script is the core of the skill. It must:
+
+1. Accept parameters: `--version` (the skill version, e.g., `0.1.0`) and `--arch` (`amd64` or `arm64`).
+2. Map arch to AWS download URL:
+   - `arm64` -&gt; `https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip`
+   - `amd64` -&gt; `https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip`
+3. Download the zip to a temp directory.
+4. Unzip it (produces `aws/` directory with the installer).
+5. Run `./aws/install --install-dir &lt;staging&gt;/aws-cli --bin-dir &lt;staging&gt;/bin` to create the self-contained installation.
+6. The `aws` symlink in `&lt;staging&gt;/bin/` points to `&lt;staging&gt;/aws-cli/v2/current/bin/aws`.
+7. Package the entire `&lt;staging&gt;/aws-cli/` directory (the install dir containing the Python runtime and all modules) plus the `aws` entry-point into a tarball named `aws-cli_&lt;version&gt;_linux_&lt;arch&gt;.tar.gz`.
+8. Generate `checksums.txt` with SHA256 sums of both tarballs.
+
+**Critical design decisions for the tarball structure:**
+
+The tarball must contain the `aws` binary at a path that the deploy script can extract to `~/.openclaw/bin/`. However, the AWS CLI is not a single static binary -- it is a directory tree of ~150-200 MB containing a bundled Python runtime.
+
+The tarball should contain:
+```
+aws-cli/           # the install dir (contains v2/current/bin/aws, v2/current/lib/*, etc.)
+aws                # symlink -&gt; aws-cli/v2/current/bin/aws
+```
+
+The SKILL.md install instructions will extract the full tree and then symlink `aws` into `~/.openclaw/bin/`.
+
+**Why this approach works in the gateway container (Node.js runtime, UID 1000, read-only fs except mounts):**
+
+- The AWS CLI bundles its own Python interpreter, so no system Python is needed.
+- It runs as a regular user (UID 1000 is fine).
+- It must be installed to a writable mount (e.g., `~/.openclaw/`), not the read-only filesystem.
+- IMDS credential resolution works when the EC2 instance has hop limit 2, which allows container-internal requests to reach the IMDS endpoint.
+
+### 3. SKILL.md Format
+
+The SKILL.md follows the exact same YAML frontmatter schema as the other skills:
+
+```yaml
+---
+name: AWS CLI
+description: AWS CLI v2 for OpenClaw agents (repackaged official binary)
+version: 0.1.0
+author: panthrocorp
+license: MIT-0
+metadata:
+  openclaw:
+    requires:
+      bins:
+        - aws
+    emoji: "☁️"
+    homepage: https://github.com/PanthroCorp-Limited/openclaw-skills
+    os: ["linux"]
+---
+```
+
+Key points:
+- `requires.bins: [aws]` (not `requires.npm`, not `requires.env` -- no secrets needed, IMDS handles credentials).
+- No `requires.env` entries. The AWS CLI uses the default credential provider chain. `AWS_REGION` is optional (can be inferred from IMDS).
+- The markdown body includes installation instructions for both arm64 and amd64, plus usage examples (`aws s3 ls`, `aws sts get-caller-identity`, etc.), and a note about IMDS hop limit 2.
+
+### 4. Release-Please Configuration
+
+**Release type: `"simple"`**
+
+The `simple` release type is the correct choice. It:
+- Bumps the version in `version.txt` by default.
+- Generates a CHANGELOG.md.
+- Supports `extra-files` for bumping `SKILL.md` version.
+- Has no package manager integration (which is exactly what we want).
+
+**Version tracking decision: Track our own semver (e.g., 0.1.0).**
+
+Rationale:
+- release-please bumps versions based on conventional commits (feat = minor, fix = patch). Tracking the upstream AWS CLI version would mean release-please's bumps don't match the upstream cadence, which is confusing.
+- The skill version represents our packaging version. When we update to a new AWS CLI upstream version, that is a `feat:` commit that bumps our minor version.
+- The upstream AWS CLI version will be documented in SKILL.md description and can be stored in a metadata field or the description string.
+
+**Changes to `.release-please-config.json`:**
+
+Add a new entry in `packages`:
+
+```json
+"aws-cli": {
+  "release-type": "simple",
+  "component": "aws-cli",
+  "changelog-path": "CHANGELOG.md",
+  "extra-files": [
+    {
+      "type": "yaml",
+      "path": "SKILL.md",
+      "jsonpath": "$.version"
+    }
+  ]
+}
+```
+
+**Changes to `.release-please-manifest.json`:**
+
+Add:
+```json
+"aws-cli": "0.1.0"
+```
+
+### 5. CI Changes
+
+**New job: `build-aws-cli`**
+
+Add a new job to `.github/workflows/ci.yml` alongside `build` (Go) and `build-npm` (npm). This job:
+
+1. Checks for changes in `aws-cli/` or `.github/workflows/ci.yml`.
+2. If changes detected, runs the packaging script for the native runner architecture (amd64, since ubuntu-latest is x86_64).
+3. Verifies the tarball:
+   - Extracts it to a temp directory.
+   - Runs `aws --version` and asserts it outputs something matching `aws-cli/2.*`.
+   - Verifies the tarball name matches the expected pattern.
+4. Optionally, runs a Docker-based smoke test to simulate the gateway container environment (Node.js base image, UID 1000).
+
+**Why not test both architectures in CI?**
+
+Building for arm64 on an x86_64 runner would require QEMU emulation, which is slow and brittle for a 150-200 MB binary. The CI job tests amd64 only. The arm64 build is tested during the release publish job (which could optionally use an arm64 runner, or we trust the AWS-provided installer for arm64 -- it is their official distribution).
+
+Alternatively, to test arm64 in CI, the job could use a matrix with `runs-on: ubuntu-latest` for amd64 and a self-hosted ARM runner. But given the simplicity (we are not compiling anything, just repackaging an upstream binary), testing amd64 only in CI and building both arches at release time is pragmatic.
+
+**Gate job update:**
+
+The `gate` job in ci.yml must be updated to `needs: [build, build-npm, build-aws-cli]` and the check loop must include `needs.build-aws-cli.result`.
+
+The CI job structure:
+
+```yaml
+build-aws-cli:
+  name: Build &amp; Verify (aws-cli)
+  runs-on: ubuntu-latest
+  defaults:
+    run:
+      working-directory: aws-cli
+  steps:
+    - uses: actions/checkout@v6
+
+    - name: Check for skill changes
+      id: changes
+      env:
+        BASE_REF: ${{ github.base_ref }}
+      run: |
+        cd "$GITHUB_WORKSPACE"
+        PATTERN='^aws-cli/|^\.github/workflows/ci\.yml$'
+        if git diff --name-only "origin/${BASE_REF}...HEAD" | grep -qE "$PATTERN"; then
+          echo "skill_changed=true" &gt;&gt; "$GITHUB_OUTPUT"
+        else
+          echo "skill_changed=false" &gt;&gt; "$GITHUB_OUTPUT"
+        fi
+
+    - name: Package (amd64)
+      if: steps.changes.outputs.skill_changed == 'true'
+      run: bash scripts/package.sh --version 0.0.0-ci --arch amd64
+
+    - name: Verify tarball
+      if: steps.changes.outputs.skill_changed == 'true'
+      run: |
+        tar -xzf dist/aws-cli_0.0.0-ci_linux_amd64.tar.gz -C /tmp/aws-cli-test
+        /tmp/aws-cli-test/aws --version
+        # Assert version output contains "aws-cli/2."
+        /tmp/aws-cli-test/aws --version 2&gt;&amp;1 | grep -q "aws-cli/2\."
+
+    - name: Skip (no skill changes)
+      if: steps.changes.outputs.skill_changed == 'false'
+      run: echo "No skill changes detected, skipping"
+```
+
+### 6. Release Workflow Changes
+
+**New job: `publish-aws-cli`**
+
+Add to `.github/workflows/release-please.yml`:
+
+1. **Outputs from release-please job:** Add `cli_release_created` and `cli_tag_name` outputs (following the existing pattern of `gw_`, `zm_`, `s3_` prefixes).
+
+2. **The publish job** needs to build for both architectures. Two approaches:
+
+   **Option A (recommended): Matrix strategy**
+   Use a matrix of `{arch: [amd64, arm64]}` on ubuntu-latest. For arm64, the script downloads the aarch64 installer, runs it under QEMU (via `docker run --platform linux/arm64`), and packages the result. For amd64, it runs natively.
+
+   **Option B: Sequential build in a single job**
+   The package script runs twice (once per arch), since the AWS CLI installer is self-contained and just needs to be unpacked and run. For arm64 on an x86_64 host, the installer may fail because it tries to execute arm64 binaries. In this case, we need QEMU.
+
+   **Recommended approach: Use the AWS installer on the native arch, and for cross-arch, install QEMU + binfmt_misc:**
+
+```yaml
+publish-aws-cli:
+  name: Publish aws-cli
+  needs: release-please
+  if: needs.release-please.outputs.cli_release_created == 'true'
+  runs-on: ubuntu-latest
+  defaults:
+    run:
+      working-directory: aws-cli
+  steps:
+    - uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
+        ref: ${{ needs.release-please.outputs.cli_tag_name }}
+
+    - name: Extract version
+      id: version
+      run: |
+        TAG="${{ needs.release-please.outputs.cli_tag_name }}"
+        VERSION="${TAG#aws-cli/v}"
+        echo "version=$VERSION" &gt;&gt; "$GITHUB_OUTPUT"
+
+    - name: Set up QEMU (for arm64 cross-build)
+      uses: docker/setup-qemu-action@v3
+      with:
+        platforms: arm64
+
+    - name: Package (amd64)
+      run: bash scripts/package.sh --version "${{ steps.version.outputs.version }}" --arch amd64
+
+    - name: Package (arm64)
+      run: bash scripts/package.sh --version "${{ steps.version.outputs.version }}" --arch arm64
+
+    - name: Generate checksums
+      run: |
+        cd dist
+        sha256sum aws-cli_*.tar.gz &gt; checksums.txt
+
+    - name: Upload assets to release
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TAG: ${{ needs.release-please.outputs.cli_tag_name }}
+      run: gh release upload "$TAG" dist/aws-cli_*.tar.gz dist/checksums.txt
+
+    - name: Publish to clawhub
+      if: success()
+      env:
+        CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
+        VERSION: ${{ steps.version.outputs.version }}
+      run: |
+        npx clawhub@latest login --token "$CLAWHUB_TOKEN"
+        npx clawhub@latest publish . --slug panthrocorp-aws-cli --version "$VERSION"
+```
+
+**Important detail about cross-architecture packaging:**
+
+The AWS CLI installer (`./aws/install`) runs Python scripts that execute architecture-native binaries internally. On an x86_64 host, running the arm64 installer requires QEMU binfmt_misc registration. The `docker/setup-qemu-action` sets up QEMU user-mode emulation, which allows running arm64 binaries transparently. After that, the `package.sh` script can detect that it needs to run arm64 binaries and either:
+- Run the installer directly (QEMU will intercept the arm64 ELF execution), or
+- Use `docker run --platform linux/arm64 ubuntu:22.04` to run the installer in a container.
+
+The simpler approach is to rely on QEMU binfmt_misc and run the installer directly on the host. The `package.sh` script does not need to know about Docker.
+
+### 7. Tarball Naming and Structure
+
+**Naming convention:** `aws-cli_&lt;version&gt;_linux_&lt;arch&gt;.tar.gz`
+
+This matches the GoReleaser template used by the Go skills:
+- `google-workspace_0.5.1_linux_arm64.tar.gz`
+- `zoho-mail_0.3.1_linux_arm64.tar.gz`
+- `aws-cli_0.1.0_linux_arm64.tar.gz` (new)
+- `aws-cli_0.1.0_linux_amd64.tar.gz` (new)
+
+**Tarball internal structure:**
+
+```
+aws-cli/                              # top-level directory in tarball
+  v2/
+    current -&gt; 2.x.y                  # symlink to versioned dir
+    2.x.y/
+      bin/
+        aws                           # the actual entry point (Python script)
+        aws_completer
+      lib/
+        python3.x/                    # bundled Python + all AWS CLI modules
+      dist-info/
+        ...
+  aws -&gt; v2/current/bin/aws           # convenience symlink at top level
+```
+
+Wait -- actually, looking at how the Go skills work, the tarball for google-workspace contains just the `google-workspace` binary at the top level. The install instructions extract a single binary:
+
+```bash
+tar -xz -C ~/.openclaw/bin/ google-workspace
+```
+
+For the AWS CLI, extracting a single file is not possible because it is a directory tree. The install instructions need to be different. The tarball should contain:
+
+```
+aws-cli-install/                      # root directory in tarball
+  aws-cli/                            # the full install dir
+    v2/current/bin/aws
+    v2/current/bin/aws_completer
+    v2/current/lib/...
+  bin/
+    aws -&gt; ../aws-cli/v2/current/bin/aws
+    aws_completer -&gt; ../aws-cli/v2/current/bin/aws_completer
+```
+
+**Installation procedure (in SKILL.md):**
+
+```bash
+TAG=$(curl -fsSL "https://api.github.com/repos/PanthroCorp-Limited/openclaw-skills/releases" \
+  | grep -o '"tag_name":"aws-cli/v[^"]*"' | head -1 | cut -d'"' -f4)
+VERSION=${TAG#aws-cli/v}
+ARCH=$(uname -m); [ "$ARCH" = "aarch64" ] &amp;&amp; ARCH="arm64" || ARCH="amd64"
+curl -fsSL "https://github.com/PanthroCorp-Limited/openclaw-skills/releases/download/${TAG}/aws-cli_${VERSION}_linux_${ARCH}.tar.gz" \
+  | tar -xz -C ~/.openclaw/
+ln -sf ~/.openclaw/aws-cli/v2/current/bin/aws ~/.openclaw/bin/aws
+```
+
+This extracts the `aws-cli/` directory to `~/.openclaw/aws-cli/` and creates a symlink in `~/.openclaw/bin/`.
+
+### 8. Additional Files to Create/Modify
+
+**New files (in `aws-cli/`):**
+
+| File | Purpose |
+|------|---------|
+| `aws-cli/SKILL.md` | clawhub manifest + agent instructions |
+| `aws-cli/LICENSE` | MIT-0 (copy from existing skill) |
+| `aws-cli/CLAUDE.md` | Claude Code guidance for this skill |
+| `aws-cli/CHANGELOG.md` | Empty initially, release-please manages it |
+| `aws-cli/version.txt` | `0.1.0` (release-please bumps this) |
+| `aws-cli/scripts/package.sh` | Download + install + tarball script |
+| `aws-cli/scripts/verify.sh` | Smoke test script |
+| `aws-cli/.gitignore` | Ignore `dist/` directory |
+
+**Modified files:**
+
+| File | Change |
+|------|--------|
+| `.release-please-config.json` | Add `aws-cli` package with `release-type: "simple"` |
+| `.release-please-manifest.json` | Add `"aws-cli": "0.1.0"` |
+| `.github/workflows/ci.yml` | Add `build-aws-cli` job; update `gate` to include it |
+| `.github/workflows/release-please.yml` | Add `cli_release_created`/`cli_tag_name` outputs; add `publish-aws-cli` job |
+| `README.md` | Add aws-cli row to skills table |
+| `CLAUDE.md` | Add third pattern ("repackaged binary") to "Adding a new skill" section |
+| `.github/dependabot.yml` | Add `github-actions` entry if not already present (it is -- no change needed for dependabot since there is no package ecosystem) |
+
+**No change to dependabot.yml:** There is no package ecosystem for this skill. The existing `github-actions` entry in dependabot already covers the workflows directory. No new dependabot entry is needed.
+
+### 9. Potential Challenges and Mitigations
+
+**Challenge 1: Cross-arch builds in CI.**
+The AWS CLI installer executes native binaries. Building arm64 on an x86_64 GitHub Actions runner requires QEMU.
+*Mitigation:* Use `docker/setup-qemu-action` in the publish job. CI only tests amd64.
+
+**Challenge 2: Large tarball size (~150-200 MB per arch).**
+GitHub release asset limit is 2 GB, so 400 MB total is fine. However, CI upload/download times will be longer.
+*Mitigation:* Only build during publish (release), not during CI. CI does a single-arch build + verify.
+
+**Challenge 3: Tarball contains symlinks.**
+The AWS CLI installation uses symlinks internally. `tar` must preserve them (`-h` flag is NOT used -- we want to keep symlinks).
+*Mitigation:* The `package.sh` script uses plain `tar czf` which preserves symlinks by default.
+
+**Challenge 4: release-please `simple` type version file.**
+Release-please's `simple` strategy looks for `version.txt` by default. Must confirm it works with the `extra-files` YAML updater for SKILL.md.
+*Mitigation:* This is the documented behavior. The `simple` type reads/writes `version.txt` and also updates any `extra-files`.
+
+**Challenge 5: AWS CLI upstream updates.**
+When a new AWS CLI v2 version is released, someone must manually open a PR that updates the download URL (or the URL always points to "latest"). The current AWS URLs (`awscli-exe-linux-aarch64.zip`) always download the latest version.
+*Mitigation:* The `package.sh` script downloads the latest AWS CLI from the canonical URLs (which always serve the latest v2 release). Each time we want to update, we open a `feat:` PR that updates the skill (even if no code changes -- the changelog documents the AWS CLI version). The script should record the AWS CLI version in the tarball (e.g., include a `VERSION` file or extract it from `aws --version` output).
+
+**Challenge 6: IMDS hop limit.**
+This is a deployment concern, not a packaging concern. The SKILL.md must document that IMDS hop limit must be 2 when running in Docker. The skill cannot control this.
+*Mitigation:* Document in SKILL.md. Include a diagnostic command: `aws sts get-caller-identity` to verify credentials work.
+
+### 10. Implementation Sequence
+
+1. **Create `aws-cli/` directory structure** with all new files: `SKILL.md`, `LICENSE`, `CLAUDE.md`, `CHANGELOG.md`, `version.txt`, `.gitignore`, `scripts/package.sh`, `scripts/verify.sh`.
+2. **Update `.release-please-config.json`** and **`.release-please-manifest.json`**.
+3. **Update `.github/workflows/ci.yml`**: Add `build-aws-cli` job and update `gate`.
+4. **Update `.github/workflows/release-please.yml`**: Add outputs and `publish-aws-cli` job.
+5. **Update `README.md`** and **`CLAUDE.md`** with the new skill entry and the third pattern documentation.
+6. **Test locally**: Run `scripts/package.sh` manually to verify it produces a working tarball.
+7. **Open PR**, verify CI passes (the `build-aws-cli` job runs and the `gate` passes).
+
+### Critical Files for Implementation
+
+- `/home/listellm/repos/panthrocorp/openclaw-skills/.release-please-config.json`
+- `/home/listellm/repos/panthrocorp/openclaw-skills/.github/workflows/ci.yml`
+- `/home/listellm/repos/panthrocorp/openclaw-skills/.github/workflows/release-please.yml`
+- `/home/listellm/repos/panthrocorp/openclaw-skills/aws-s3/SKILL.md` (reference for SKILL.md format of a non-Go skill)
+- `/home/listellm/repos/panthrocorp/openclaw-skills/CLAUDE.md` (needs update for third skill pattern)</result>
+<usage><total_tokens>54949</total_tokens><tool_uses>71</tool_uses><duration_ms>231887</duration_ms></usage>
+</task-notification>
+
+---
+
+run my review command
+
+---
+
+<task-notification>
+<task-id>ac2287da27aa7e052</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/tmp/claude-1000/-home-listellm-repos-panthrocorp-openclaw-skills/334a24a9-0dfd-4f4c-911c-6045187e898d/tasks/ac2287da27aa7e052.output</output-file>
+<status>completed</status>
+<summary>Agent "Security review of aws-cli skill" completed</summary>
+<result>I now have a thorough picture of the code. Here is the security audit.
+
+---
+
+## Security Audit: aws-cli Skill
+
+### FINDING 1 -- No integrity verification of downloaded AWS CLI binary
+
+**Severity: HIGH**
+
+`package.sh` downloads the AWS CLI zip from `https://awscli.amazonaws.com/awscli-exe-linux-${AWS_ARCH}.zip` with no cryptographic verification whatsoever. There is:
+
+- No pinned SHA-256 hash comparison after download.
+- No GPG signature verification (AWS publishes `.sig` files alongside the zip at `https://awscli.amazonaws.com/awscli-exe-linux-${AWS_ARCH}.zip.sig`).
+- No pinned AWS CLI version. The URL always resolves to the latest release, meaning the binary content changes silently between builds. Two builds on different days will package different upstream binaries with no audit trail.
+
+This is the most significant supply chain risk. An attacker who compromises the CDN endpoint, or a DNS hijack against the GitHub Actions runner, would inject a malicious binary that gets packaged, checksummed, published to clawhub, and distributed to all consumers. The checksum step in CI only validates the tarball, not the upstream source.
+
+**Recommendation:**
+1. Pin the AWS CLI version explicitly (e.g. `2.27.22`) and include it in `version.txt` or a dedicated `AWS_CLI_VERSION` file.
+2. Download the corresponding `.sig` file and verify with the AWS CLI public GPG key before proceeding.
+3. Alternatively (or additionally), publish known-good SHA-256 hashes for each architecture in a checked-in manifest and verify after download with `sha256sum --check`.
+4. Fail the build if verification fails. This is a hard requirement for any supply chain that redistributes third-party binaries.
+
+---
+
+### FINDING 2 -- Unpinned version means silent upstream changes between CI and release builds
+
+**Severity: HIGH**
+
+The CI job runs `package.sh --version 0.0.0-ci --arch amd64` and verifies the tarball works. The release job runs the same script hours or days later. Because there is no pinned upstream version, the CI build and the release build may package entirely different AWS CLI binaries. The CI verification provides no assurance about what actually gets released.
+
+**Recommendation:** Pin the upstream AWS CLI version. The CI and release builds must be deterministic and reproducible. If you want to track the latest, use a scheduled workflow (e.g. Dependabot-style) that updates the pinned version in a PR, which then goes through CI before merging.
+
+---
+
+### FINDING 3 -- Execution of downloaded installer without sandboxing
+
+**Severity: MEDIUM**
+
+Line `"${WORK_DIR}/aws/install"` executes a binary extracted from the downloaded zip directly on the GitHub Actions runner with the full permissions of the workflow. Although the AWS installer is expected to be benign, combined with Finding 1 (no integrity check), this means arbitrary code execution on the runner if the upstream source is compromised. The runner has access to `secrets.GITHUB_TOKEN` and `secrets.CLAWHUB_TOKEN` in the release workflow context.
+
+**Recommendation:** If sandboxing the install step (e.g. running it in a minimal container) is impractical, solving Finding 1 (GPG/hash verification) becomes even more critical. Consider running the packaging step in an isolated container image rather than directly on the runner.
+
+---
+
+### FINDING 4 -- QEMU cross-build for arm64 runs untrusted binary via emulation
+
+**Severity: MEDIUM**
+
+The release workflow uses `docker/setup-qemu-action@v3` to enable arm64 emulation, then runs `package.sh --arch arm64`. This causes the downloaded arm64 AWS CLI installer to execute under QEMU binfmt_misc on the amd64 runner. Combined with Finding 1, a compromised arm64 binary would execute under emulation with full runner permissions.
+
+QEMU binfmt_misc also has a history of escape vulnerabilities. The action is pinned to `@v3` (a major version tag, not a SHA), meaning the action itself can be silently updated.
+
+**Recommendation:**
+1. Pin `docker/setup-qemu-action` to a specific commit SHA rather than `@v3`.
+2. Consider whether executing the arm64 installer is strictly necessary. If you only need the file tree, you could extract the zip and assemble the directory structure without running the installer, or use a native arm64 runner (GitHub now offers `ubuntu-latest-arm64`).
+
+---
+
+### FINDING 5 -- GitHub Actions action versions pinned to major tags, not SHAs
+
+**Severity: MEDIUM**
+
+All actions in the workflows use mutable tags (`@v6`, `@v4`, `@v3`, `@v7`). This is consistent with the existing codebase patterns, so this is not new to the aws-cli skill specifically, but it is worth noting. A compromised action upstream can push a malicious update under the same tag.
+
+Affected actions in the new code paths:
+- `actions/checkout@v6`
+- `docker/setup-qemu-action@v3`
+- `googleapis/release-please-action@v4`
+
+**Recommendation:** Pin actions to full commit SHAs with a comment noting the version. Use Dependabot or Renovate to propose updates. Example: `uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v6.0.0`.
+
+---
+
+### FINDING 6 -- `npx clawhub@latest` uses unpinned npm package at publish time
+
+**Severity: MEDIUM**
+
+The publish step runs `npx clawhub@latest`, which fetches whatever version of `clawhub` is currently latest on npm at the time of the workflow run. A compromised or malicious update to the `clawhub` package on npm would execute in the context of the workflow with access to `CLAWHUB_TOKEN`. This pattern exists in all publish jobs (not just aws-cli), but warrants flagging.
+
+**Recommendation:** Pin `clawhub` to a specific version (e.g. `npx clawhub@1.2.3`). Update it deliberately via PRs.
+
+---
+
+### FINDING 7 -- Shell script: `ls` output parsed to determine AWS CLI version directory
+
+**Severity: LOW**
+
+In `package.sh`, line `AWS_VERSION=$(ls "${STAGING}/aws-cli/v2/" | grep -v current)` parses `ls` output to find the installed version directory. This is fragile. If the installer ever creates additional files or directories under `v2/`, this could select the wrong entry or fail silently.
+
+**Recommendation:** Use a more robust approach such as reading the version from the installed binary's `--version` output (which is already captured earlier in the script) or using `find` with constraints.
+
+---
+
+### FINDING 8 -- Tarball content: no explicit `--no-same-owner` or path traversal guard
+
+**Severity: LOW**
+
+The `tar -czf` command in `package.sh` packages from the staging directory using `-C "${STAGING}" aws-cli bin`, which is correct and scoped. The resulting tarball should not contain absolute paths or `../` traversals because the content is created in a clean temporary directory. However, the AWS CLI installer creates a directory tree that the script does not fully control.
+
+On the extraction side, the SKILL.md instructions use `tar -xz -C ~/.openclaw/` without `--no-same-owner` or `--no-same-permissions`. If the tarball contains files with unexpected ownership or setuid bits (from the upstream installer), these would be preserved.
+
+**Recommendation:** Add `--no-same-owner --no-same-permissions` to the documented extraction commands. In the CI verification step, add a check that the tarball contains no files with setuid/setgid bits: `tar -tzf dist/*.tar.gz | xargs -I{} test ...` or inspect with `find /tmp/aws-cli-verify -perm /6000`.
+
+---
+
+### FINDING 9 -- Temporary directory cleanup is correct
+
+**Severity: INFO (positive finding)**
+
+The script uses `mktemp -d` with a `trap cleanup EXIT`, which properly cleans up the temporary directory on both success and failure paths. The `set -euo pipefail` at the top ensures the script fails fast on errors. Argument parsing validates required parameters and uses a restrictive allowlist for `--arch` values. This is well implemented.
+
+---
+
+### FINDING 10 -- TLS-only download, no HTTP fallback
+
+**Severity: INFO (positive finding)**
+
+The `curl -fsSL` call downloads over HTTPS only. There is no HTTP fallback. The `-f` flag causes curl to fail on HTTP errors. This is correct.
+
+---
+
+### FINDING 11 -- Secret handling follows existing patterns
+
+**Severity: INFO (positive finding)**
+
+`CLAWHUB_TOKEN` and `GITHUB_TOKEN` are passed via `env:` blocks in workflow steps, not as command-line arguments. They are not logged. The `package.sh` script does not handle any secrets. This is consistent with the existing publish jobs and is correctly implemented.
+
+---
+
+### Summary
+
+| # | Finding | Severity |
+|---|---------|----------|
+| 1 | No integrity verification (hash or GPG) of downloaded AWS CLI binary | HIGH |
+| 2 | Unpinned upstream version causes non-deterministic builds between CI and release | HIGH |
+| 3 | Downloaded installer executed directly on runner without sandboxing | MEDIUM |
+| 4 | QEMU cross-build runs untrusted arm64 binary; action pinned to mutable tag | MEDIUM |
+| 5 | GitHub Actions pinned to major tags, not commit SHAs | MEDIUM |
+| 6 | `npx clawhub@latest` unpinned at publish time | MEDIUM |
+| 7 | `ls` output parsing for version directory is fragile | LOW |
+| 8 | No setuid/ownership guards on tarball extraction | LOW |
+| 9 | Temp directory cleanup is correct | INFO |
+| 10 | TLS-only download, no HTTP fallback | INFO |
+| 11 | Secret handling follows secure patterns | INFO |
+
+The critical remediation priority is Finding 1. Without cryptographic verification of the upstream binary, the entire skill is a supply chain risk. Pinning the version (Finding 2) and verifying the GPG signature or SHA-256 hash should be the first changes before this ships. Everything else is incremental hardening.</result>
+<usage><total_tokens>24951</total_tokens><tool_uses>13</tool_uses><duration_ms>85816</duration_ms></usage>
+</task-notification>
+
+---
+
+/gh-ship
+
+---
+
+are there any open pull requests in this repo?
+
+---
+
+yes
+
+---
+
+check for open PRs or running actions
+
+---
+
+update the linear ticket and close the github issue
+
+---
+
+update https://github.com/PanthroCorp-Limited/openclaw/issues/146 to note that the 2 new skills are available
+
+---
+
+update the linear ticket PAN-52 with the skills progress
