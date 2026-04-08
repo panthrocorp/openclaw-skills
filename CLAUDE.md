@@ -66,6 +66,17 @@ All skills in this repo follow these rules:
 - Google Cloud projects backing each skill should only enable the APIs the skill uses.
 - Every skill must pass clawhub moderation and VirusTotal scanning before publish.
 
+## Anonymisation in published content
+
+SKILL.md files are published to clawhub and publicly visible. Never include real data from the OpenClaw instance in examples, code samples, or documentation within SKILL.md files. This includes:
+
+- Agent names, channel IDs, user IDs, cron job UUIDs
+- Model identifiers and provider names
+- Session keys, file paths containing real identifiers
+- Any data obtained by SSH-ing into the instance or reading live config
+
+Use generic placeholders instead (e.g. `alice`, `bob`, `model-a`, `123456789`, `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`). The global anonymisation rules in `~/.claude/CLAUDE.md` apply to all content in this repo that reaches clawhub.
+
 ## Publishing
 
 Releases are automated via [release-please](https://github.com/googleapis/release-please). On each merge to `main`, release-please opens or updates a release PR per skill with a generated changelog. Merging that PR creates a GitHub release, tag, and triggers GoReleaser + `clawhub publish`.
