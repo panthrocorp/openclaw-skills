@@ -1,0 +1,23 @@
+{
+  "cli_version": "0.5.1",
+  "checkpoint_id": "809b397afbf3",
+  "strategy": "manual-commit",
+  "branch": "fix/pan-65-anonymise-examples",
+  "checkpoints_count": 1,
+  "files_touched": null,
+  "sessions": [
+    {
+      "metadata": "/80/9b397afbf3/0/metadata.json",
+      "transcript": "/80/9b397afbf3/0/full.jsonl",
+      "content_hash": "/80/9b397afbf3/0/content_hash.txt",
+      "prompt": "/80/9b397afbf3/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 2250,
+    "cache_creation_tokens": 144259,
+    "cache_read_tokens": 14876819,
+    "output_tokens": 38583,
+    "api_call_count": 147
+  }
+}
