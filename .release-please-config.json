@@ -7,9 +7,8 @@
       "changelog-path": "CHANGELOG.md",
       "extra-files": [
         {
-          "type": "yaml",
-          "path": "SKILL.md",
-          "jsonpath": "$.version"
+          "type": "generic",
+          "path": "SKILL.md"
         }
       ]
     },
@@ -19,9 +18,8 @@
       "changelog-path": "CHANGELOG.md",
       "extra-files": [
         {
-          "type": "yaml",
-          "path": "SKILL.md",
-          "jsonpath": "$.version"
+          "type": "generic",
+          "path": "SKILL.md"
         }
       ]
     },
@@ -31,9 +29,8 @@
       "changelog-path": "CHANGELOG.md",
       "extra-files": [
         {
-          "type": "yaml",
-          "path": "SKILL.md",
-          "jsonpath": "$.version"
+          "type": "generic",
+          "path": "SKILL.md"
         }
       ]
     },
@@ -43,9 +40,8 @@
       "changelog-path": "CHANGELOG.md",
       "extra-files": [
         {
-          "type": "yaml",
-          "path": "SKILL.md",
-          "jsonpath": "$.version"
+          "type": "generic",
+          "path": "SKILL.md"
         }
       ]
     },
@@ -55,9 +51,8 @@
       "changelog-path": "CHANGELOG.md",
       "extra-files": [
         {
-          "type": "yaml",
-          "path": "SKILL.md",
-          "jsonpath": "$.version"
+          "type": "generic",
+          "path": "SKILL.md"
         }
       ]
     }

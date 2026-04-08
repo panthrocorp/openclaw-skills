@@ -1,7 +1,7 @@
 ---
 name: AWS CLI
 description: AWS CLI v2 for OpenClaw agents (repackaged official binary)
-version: 0.1.0
+version: 0.2.1 # x-release-please-version
 author: panthrocorp
 license: MIT-0
 metadata:

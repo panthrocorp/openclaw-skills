@@ -1,7 +1,7 @@
 ---
 name: Token Usage
 description: Multi-agent token burn analysis across all registered OpenClaw agents
-version: 0.2.1
+version: 0.2.1 # x-release-please-version
 author: panthrocorp
 license: MIT-0
 metadata:
@@ -134,7 +134,64 @@ After all agent sections, print:
 - Costs: round to 2 decimal places, prefix with `$`
 - If a summed value is zero because all entries were absent, display as `-` not `0`
 
-## Step 7: Optional log write
+## Step 7: Persist structured history
+
+Append exactly one JSON line to:
+
+`~/.openclaw/workspace/memory/token-usage-history.ndjson`
+
+Create the file if it does not exist. Never modify existing lines.
+
+This step always runs. It does not require explicit user request.
+
+### Record structure
+
+The line is a compact JSON object (no newlines within the record):
+
+```json
+{"date":"YYYY-MM-DD","window":"<time window>","runAt":<epoch ms>,"agents":[...],"combined":{...}}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `date` | string | UTC date of this run (`YYYY-MM-DD`) |
+| `window` | string | Time window used (e.g. `"last 1 day"`, `"this week"`) |
+| `runAt` | integer | Epoch milliseconds when the skill ran |
+| `agents` | array | One entry per agent that has session data |
+| `combined` | object | Aggregated totals across all agents |
+
+Each agent entry:
+
+```json
+{
+  "id": "<agentId>",
+  "categories": [
+    {
+      "category": "<category>",
+      "sessions": 80,
+      "totalTokens": 1200000,
+      "inputTokens": 800000,
+      "outputTokens": 400000,
+      "estimatedCostUsd": 42.50,
+      "models": ["model-a"],
+      "flags": ["EXPENSIVE"]
+    }
+  ],
+  "totals": {
+    "sessions": 120,
+    "totalTokens": 1435000,
+    "inputTokens": 955000,
+    "outputTokens": 480000,
+    "estimatedCostUsd": 46.02
+  }
+}
+```
+
+The `combined` object mirrors the `totals` shape without an `id` field.
+
+Use `null` for any numeric field where all entries in the group had the field absent. Use `[]` for `flags` when no flags apply. Agents with no session data are omitted from the record entirely.
+
+## Step 8: Optional log write
 
 **Only if the user explicitly requests logging**, append a timestamped summary to:
 
@@ -160,6 +217,7 @@ Do not write to this file unless the user explicitly asks.
 | Access | Path | Required |
 |--------|------|----------|
 | Read | `~/.openclaw/agents/*/sessions/sessions.json` | Always |
+| Write | `~/.openclaw/workspace/memory/token-usage-history.ndjson` | Always |
 | Write | `~/.openclaw/workspace/memory/token-diet-log.md` | Only when user requests logging |
 
 No environment variables. No network access. No credentials.

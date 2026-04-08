@@ -1,7 +1,7 @@
 ---
 name: Google Workspace
 description: Gmail, Contacts, Calendar, Drive (with comments), Docs, and Sheets for OpenClaw agents
-version: 0.4.2
+version: 0.5.1 # x-release-please-version
 author: panthrocorp
 license: MIT-0
 metadata:
