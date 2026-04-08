@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.2](https://github.com/PanthroCorp-Limited/openclaw-skills/compare/google-workspace/v0.5.1...google-workspace/v0.5.2) (2026-04-08)
+
+
+### Bug Fixes
+
+* switch to generic updater for SKILL.md versions ([#68](https://github.com/PanthroCorp-Limited/openclaw-skills/issues/68)) ([4369cfe](https://github.com/PanthroCorp-Limited/openclaw-skills/commit/4369cfefaecff2384396399848fbda4bce646715))
+
 ## [0.5.1](https://github.com/PanthroCorp-Limited/openclaw-skills/compare/google-workspace/v0.5.0...google-workspace/v0.5.1) (2026-04-07)
 
 
