@@ -1,6 +1,6 @@
 {
   "name": "@openclaw/aws-s3",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Self-contained AWS S3 SDK bundle for OpenClaw agents",
   "main": "dist/index.cjs",
   "exports": {

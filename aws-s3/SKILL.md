@@ -1,7 +1,7 @@
 ---
 name: AWS S3
 description: Self-contained AWS S3 SDK bundle for OpenClaw agents
-version: 0.2.0 # x-release-please-version
+version: 0.2.1 # x-release-please-version
 author: panthrocorp
 license: MIT-0
 metadata:
