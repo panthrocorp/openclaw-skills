@@ -1,0 +1,45 @@
+read https://linear.app/panthrocorp/issue/PAN-65/token-usage-new-openclaw-skill-multi-agent-token-burn-analysis
+
+---
+
+i dont know the answer to your question
+
+---
+
+A
+
+---
+
+you will need to ssh to the instance and check the running openclaw setup
+
+---
+
+read /home/listellm/repos/panthrocorp/openclaw for info and then update your claude.md / memory so you know
+
+---
+
+status?
+
+---
+
+yes
+
+---
+
+sure
+
+---
+
+absolute thresholds are fine, keep it simple
+
+---
+
+sure go ahead
+
+---
+
+reviewed and approved
+
+---
+
+1
