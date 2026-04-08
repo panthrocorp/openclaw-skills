@@ -87,7 +87,13 @@ Configuration lives in `.release-please-config.json` (package definitions) and `
 
 ### SKILL.md version management
 
-Release-please updates the `version` field in each skill's `SKILL.md` via a `type: yaml` updater with `jsonpath: $.version` configured in `extra-files`. The `clawhub publish` step passes `--version` explicitly from the release tag rather than relying on clawhub's YAML parser (which cannot handle inline comments or quoted values in frontmatter).
+Release-please updates the `version` field in each skill's `SKILL.md` via the `generic` updater configured in `extra-files`. The version line in YAML frontmatter must include the `x-release-please-version` marker comment:
+
+```yaml
+version: 0.1.0 # x-release-please-version
+```
+
+The `type: yaml` updater with `jsonpath` does not work for YAML frontmatter in markdown files because the parser expects pure YAML, not a markdown file with frontmatter delimiters. The `clawhub publish` step passes `--version` explicitly from the release tag rather than relying on clawhub's YAML parser.
 
 ### Release-please PR merging
 
