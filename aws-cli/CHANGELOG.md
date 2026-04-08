@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.2](https://github.com/PanthroCorp-Limited/openclaw-skills/compare/aws-cli/v0.2.1...aws-cli/v0.2.2) (2026-04-08)
+
+
+### Bug Fixes
+
+* switch to generic updater for SKILL.md versions ([#68](https://github.com/PanthroCorp-Limited/openclaw-skills/issues/68)) ([4369cfe](https://github.com/PanthroCorp-Limited/openclaw-skills/commit/4369cfefaecff2384396399848fbda4bce646715))
+
 ## [0.2.1](https://github.com/PanthroCorp-Limited/openclaw-skills/compare/aws-cli/v0.2.0...aws-cli/v0.2.1) (2026-04-08)
 
 
