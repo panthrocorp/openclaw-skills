@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.1](https://github.com/PanthroCorp-Limited/openclaw-skills/compare/google-workspace/v0.5.0...google-workspace/v0.5.1) (2026-04-07)
+
+
+### Bug Fixes
+
+* Bump google.golang.org/api in /google-workspace ([#50](https://github.com/PanthroCorp-Limited/openclaw-skills/issues/50)) ([fadb55f](https://github.com/PanthroCorp-Limited/openclaw-skills/commit/fadb55f9dc611479c020b2afff05ce3bd5370f47))
+* use debug.ReadBuildInfo() to determine version at runtime ([#48](https://github.com/PanthroCorp-Limited/openclaw-skills/issues/48)) ([23cd641](https://github.com/PanthroCorp-Limited/openclaw-skills/commit/23cd6413c2b6a2d5cb773666d9c0ca7369fd1f1c))
+
 ## [0.5.0](https://github.com/PanthroCorp-Limited/openclaw-skills/compare/google-workspace/v0.4.3...google-workspace/v0.5.0) (2026-04-02)
 
 
