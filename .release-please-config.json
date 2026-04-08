@@ -48,6 +48,18 @@
           "jsonpath": "$.version"
         }
       ]
+    },
+    "token-usage": {
+      "release-type": "simple",
+      "component": "token-usage",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "yaml",
+          "path": "SKILL.md",
+          "jsonpath": "$.version"
+        }
+      ]
     }
   },
   "initial-version": "0.1.0",

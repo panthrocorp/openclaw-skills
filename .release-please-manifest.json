@@ -2,5 +2,6 @@
   "google-workspace": "0.5.1",
   "zoho-mail": "0.3.1",
   "aws-s3": "0.2.0",
-  "aws-cli": "0.2.1"
+  "aws-cli": "0.2.1",
+  "token-usage": "0.1.0"
 }

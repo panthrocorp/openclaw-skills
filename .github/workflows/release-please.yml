@@ -24,6 +24,8 @@ jobs:
       s3_tag_name: ${{ steps.release.outputs['aws-s3--tag_name'] }}
       cli_release_created: ${{ steps.release.outputs['aws-cli--release_created'] }}
       cli_tag_name: ${{ steps.release.outputs['aws-cli--tag_name'] }}
+      tu_release_created: ${{ steps.release.outputs['token-usage--release_created'] }}
+      tu_tag_name: ${{ steps.release.outputs['token-usage--tag_name'] }}
     steps:
       - uses: googleapis/release-please-action@v4
         id: release
@@ -246,3 +248,26 @@ jobs:
           VERSION="${TAG#aws-cli/v}"
           npx clawhub@latest login --token "$CLAWHUB_TOKEN"
           npx clawhub@latest publish . --slug panthrocorp-aws-cli --version "$VERSION"
+
+  publish-token-usage:
+    name: Publish token-usage
+    needs: release-please
+    if: needs.release-please.outputs.tu_release_created == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: token-usage
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.release-please.outputs.tu_tag_name }}
+
+      - name: Publish to clawhub
+        env:
+          CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
+          TAG: ${{ needs.release-please.outputs.tu_tag_name }}
+        run: |
+          VERSION="${TAG#token-usage/v}"
+          npx clawhub@latest login --token "$CLAWHUB_TOKEN"
+          npx clawhub@latest publish . --slug panthrocorp-token-usage --version "$VERSION"
