@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "^3.750.0",
-    "esbuild": "^0.25.0"
+    "esbuild": "^0.28.0"
   },
   "engines": {
     "node": ">=22"
