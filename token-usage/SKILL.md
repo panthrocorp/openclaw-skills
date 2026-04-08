@@ -37,16 +37,16 @@ For each session entry, extract these fields (all may be absent):
 | `inputTokens` | integer | Input/prompt tokens |
 | `outputTokens` | integer | Output/completion tokens |
 | `estimatedCostUsd` | float | Estimated cost in USD |
-| `model` | string | Model identifier (e.g. `gpt-5.4`, `anthropic/claude-haiku-4.5`) |
+| `model` | string | Model identifier (e.g. `provider/model-name`) |
 | `updatedAt` | integer | Last update timestamp in epoch milliseconds |
 
 The **category** is the third segment of the session key (index 2 when splitting on `:`).
 
 Examples:
-- `agent:main:discord:channel:1487551036955693207` -> category = `discord`
-- `agent:main:telegram:direct:792655695` -> category = `telegram`
-- `agent:lukas:cron:8c2aa341-0604-4884-a2e1-c5ff3bcfa787` -> category = `cron`
-- `agent:main:main` -> category = `main`
+- `agent:alice:discord:channel:123456789` -> category = `discord`
+- `agent:alice:telegram:direct:987654321` -> category = `telegram`
+- `agent:bob:cron:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx` -> category = `cron`
+- `agent:alice:main` -> category = `main`
 
 ## Step 3: Apply time window filter
 
@@ -92,14 +92,14 @@ A single category can have both flags (high tokens on a mix of free and paid mod
 For each agent that has session data, print a heading with the agent name and total session count, then a table with one row per category:
 
 ```
-## main (251 sessions)
+## alice (120 sessions)
 
 | Category | Sessions | Tokens | Input | Output | Est. Cost | Models | Flags |
 |----------|----------|--------|-------|--------|-----------|--------|-------|
-| discord  | 180      | 1.2M   | 800K  | 400K   | $82.50    | gpt-5.4 | EXPENSIVE |
-| telegram | 45       | 120K   | 80K   | 40K    | $3.20     | gpt-5.4 | |
-| cron     | 20       | 95K    | 60K   | 35K    | $0.00     | openrouter/free | SINKHOLE |
-| main     | 6        | 20K    | 15K   | 5K     | $0.32     | gpt-5.4 | |
+| discord  | 80       | 1.2M   | 800K  | 400K   | $42.50    | model-a | EXPENSIVE |
+| telegram | 25       | 120K   | 80K   | 40K    | $3.20     | model-a | |
+| cron     | 10       | 95K    | 60K   | 35K    | $0.00     | model-b | SINKHOLE |
+| main     | 5        | 20K    | 15K   | 5K     | $0.32     | model-a | |
 ```
 
 Sort rows by estimated cost descending within each agent.
