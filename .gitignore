@@ -36,3 +36,6 @@ Thumbs.db
 .claude
 .playwright-mcp/
 .playwright-cli/
+
+# Git worktrees
+.worktrees/
