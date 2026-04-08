@@ -47,19 +47,29 @@ echo "Extracting installer..."
 unzip -q "${WORK_DIR}/awscli.zip" -d "${WORK_DIR}"
 
 STAGING="${WORK_DIR}/staging"
-mkdir -p "${STAGING}/bin"
+INSTALLER_DIR="${WORK_DIR}/aws"
+INSTALLER_DIST="${INSTALLER_DIR}/dist"
 
-echo "Installing to staging directory..."
-"${WORK_DIR}/aws/install" \
-  --install-dir "${STAGING}/aws-cli" \
-  --bin-dir "${STAGING}/bin" \
-  > /dev/null
-
-if [[ "$AWS_ARCH" == "$HOST_ARCH" ]] || [[ "$HOST_ARCH" == "x86_64" && "$AWS_ARCH" == "x86_64" ]] || [[ "$HOST_ARCH" == "aarch64" && "$AWS_ARCH" == "aarch64" ]]; then
+if [[ "$AWS_ARCH" == "$HOST_ARCH" ]]; then
+  echo "Native arch build, using official installer..."
+  mkdir -p "${STAGING}/bin"
+  "${INSTALLER_DIR}/install" \
+    --install-dir "${STAGING}/aws-cli" \
+    --bin-dir "${STAGING}/bin" \
+    > /dev/null
   AWS_CLI_VERSION=$("${STAGING}/aws-cli/v2/current/bin/aws" --version 2>&1)
   echo "Bundled version: ${AWS_CLI_VERSION}"
 else
-  echo "Cross-arch build (host=${HOST_ARCH}, target=${AWS_ARCH}), skipping version check"
+  echo "Cross-arch build (host=${HOST_ARCH}, target=${AWS_ARCH}), manual install..."
+  AWS_EXE_VERSION="latest"
+  INSTALL_DIR="${STAGING}/aws-cli/v2/${AWS_EXE_VERSION}"
+  mkdir -p "${INSTALL_DIR}/bin" "${STAGING}/bin"
+  cp -r "${INSTALLER_DIST}" "${INSTALL_DIR}/dist"
+  ln -s "../dist/aws" "${INSTALL_DIR}/bin/aws"
+  ln -s "../dist/aws_completer" "${INSTALL_DIR}/bin/aws_completer"
+  ln -snf "${AWS_EXE_VERSION}" "${STAGING}/aws-cli/v2/current"
+  ln -sf "../aws-cli/v2/current/bin/aws" "${STAGING}/bin/aws"
+  ln -sf "../aws-cli/v2/current/bin/aws_completer" "${STAGING}/bin/aws_completer"
 fi
 
 echo "Fixing symlinks to be relative..."
@@ -68,12 +78,17 @@ if [[ ${#versions[@]} -ne 1 ]]; then
   echo "Expected exactly 1 version dir, found: ${versions[*]}" >&2
   exit 1
 fi
-AWS_VERSION="${versions[0]}"
-rm -f "${STAGING}/aws-cli/v2/current"
-ln -s "${AWS_VERSION}" "${STAGING}/aws-cli/v2/current"
-rm -f "${STAGING}/bin/aws" "${STAGING}/bin/aws_completer"
-ln -s ../aws-cli/v2/current/bin/aws "${STAGING}/bin/aws"
-ln -s ../aws-cli/v2/current/bin/aws_completer "${STAGING}/bin/aws_completer"
+AWS_VER_DIR="${versions[0]}"
+
+if [[ -L "${STAGING}/aws-cli/v2/current" ]]; then
+  rm -f "${STAGING}/aws-cli/v2/current"
+  ln -s "${AWS_VER_DIR}" "${STAGING}/aws-cli/v2/current"
+fi
+if [[ -L "${STAGING}/bin/aws" ]]; then
+  rm -f "${STAGING}/bin/aws" "${STAGING}/bin/aws_completer"
+  ln -s ../aws-cli/v2/current/bin/aws "${STAGING}/bin/aws"
+  ln -s ../aws-cli/v2/current/bin/aws_completer "${STAGING}/bin/aws_completer"
+fi
 
 mkdir -p "$DIST_DIR"
 TARBALL="aws-cli_${VERSION}_linux_${ARCH}.tar.gz"
